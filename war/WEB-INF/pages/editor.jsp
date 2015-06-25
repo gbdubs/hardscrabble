@@ -25,7 +25,7 @@
 					<h3>Question</h3>
 					<div id="question-editor">${problem.question}</div>
 					<label class="timing-label">Duration (In Seconds)</label>
-					<input class="timing-input" id="q-time" type="number" value="${problem.qTime}"></input>
+					<input class="timing-input" id="quesiton-time" type="number" value="${problem.questionTime}"></input>
 				</div>
 				<div class="editor-wrapper">
 					<h3>Paired Commenting</h3>
@@ -38,7 +38,7 @@
 						<option value="inv-length" ${problem.commentAlgorithm == "inv-length" ? 'selected="selected"' : ''}>Inverted Length</option>
 					</select>
 					<label class="timing-label">Duration (In Seconds)</label>
-					<input class="timing-input" id="c-time" type="number" value="${problem.cTime}"></input>
+					<input class="timing-input" id="comment-time" type="number" value="${problem.commentTime}"></input>
 				</div>
 				<div class="editor-wrapper">
 					<h3>Post-Commenting Chat</h3>

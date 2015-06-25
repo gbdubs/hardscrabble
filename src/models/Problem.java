@@ -19,27 +19,28 @@ public class Problem {
 
 	private static DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 	
+	// Variables that indicate Problem Instance State
 	public String currentPhase;
 	public long phaseStartedAt;
 	
+	// Variables that are stored as a part of the Problem Definition
 	public String uuid;
+	public int problemRun;
 	public String title;
 	public String preQuestion;
 	public int preTime;
 	public String question;
-	public int qTime;
+	public int questionTime;
+	public String commentAlgorithm;
+	public int commentTime;
+	public int chatTime;
+	public String solution;
 	public String postQuestion;
 	public int postTime;
-	public String solution;
 	public long lastEdit;
-	public String commentAlgorithm;
-	public int cTime;
-	public int problemRun;
-	public int chatTime;
 	
+	// The entity in which we store our Problem Definition.
 	private Entity e;
-
-	
 	
 	public Problem(){
 		uuid = UUID.randomUUID().toString();
@@ -62,11 +63,11 @@ public class Problem {
 		postQuestion = ((Text) e.getProperty("postQuestion")).getValue();
 		solution = ((Text) e.getProperty("solution")).getValue();
 		preTime = ((Long) e.getProperty("preTime")).intValue();
-		qTime = ((Long) e.getProperty("qTime")).intValue();
+		questionTime = ((Long) e.getProperty("questionTime")).intValue();
 		postTime = ((Long) e.getProperty("postTime")).intValue();
 		lastEdit = (Long) e.getProperty("lastEdit");
 		commentAlgorithm = (String) e.getProperty("commentAlgorithm");
-		cTime = ((Long) e.getProperty("cTime")).intValue();
+		commentTime = ((Long) e.getProperty("commentTime")).intValue();
 		currentPhase = (String) e.getProperty("currentPhase");
 		phaseStartedAt = (Long) e.getProperty("phaseStartedAt");
 		problemRun = ((Long) e.getProperty("problemRun")).intValue();
@@ -83,8 +84,8 @@ public class Problem {
 		e.setUnindexedProperty("solution", new Text(solution));
 		e.setUnindexedProperty("preTime", new Long(preTime));
 		e.setUnindexedProperty("postTime", new Long(postTime));
-		e.setUnindexedProperty("qTime", new Long(qTime));
-		e.setUnindexedProperty("cTime", new Long(cTime));
+		e.setUnindexedProperty("questionTime", new Long(questionTime));
+		e.setUnindexedProperty("commentTime", new Long(commentTime));
 		e.setUnindexedProperty("commentAlgorithm", commentAlgorithm);
 		e.setUnindexedProperty("currentPhase", currentPhase);
 		e.setUnindexedProperty("phaseStartedAt", phaseStartedAt);
@@ -127,8 +128,8 @@ public class Problem {
 		return preTime;
 	}
 	
-	public int getqTime(){
-		return qTime;
+	public int getQuestionTime(){
+		return questionTime;
 	}
 	
 	public int getPostTime(){
@@ -139,8 +140,8 @@ public class Problem {
 		return commentAlgorithm;
 	}
 	
-	public int getcTime(){
-		return cTime;
+	public int getCommentTime(){
+		return commentTime;
 	}
 	
 	public String getCurrentPhase(){
@@ -168,9 +169,9 @@ public class Problem {
 		if (getCurrentPhase().equals("pre")){
 			secondsInPhase = getPreTime();
 		} else if (getCurrentPhase().equals("question")){
-			secondsInPhase = getqTime();
+			secondsInPhase = getQuestionTime();
 		} else if (getCurrentPhase().equals("comment")){
-			secondsInPhase = getcTime();
+			secondsInPhase = getCommentTime();
 		} else if (getCurrentPhase().equals("chat")){
 			secondsInPhase = getChatTime();
 		} else if (getCurrentPhase().equals("post")){
@@ -207,14 +208,14 @@ public class Problem {
 	}
 	
 	public void advance(){
-		this.currentPhase = getPhaseAfter(this.currentPhase);
+		currentPhase = getPhaseAfter(currentPhase);
 		if (currentPhase.equals("waiting")){
 			problemRun++;
 		}
 		if (currentPhase.equals("chat")){
 			ChatAPI.initializeChatPhase();
 		}
-		this.phaseStartedAt = System.currentTimeMillis();
-		this.save();
+		phaseStartedAt = System.currentTimeMillis();
+		save();
 	}
 }

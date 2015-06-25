@@ -28,9 +28,9 @@ $(function(){
 		var preTestQuestion = preQuestionEditor.getValue();
 		var preTime = $("#pre-time").val();
 		var question = questionEditor.getValue();
-		var qTime = $("#q-time").val();
+		var qTime = $("#question-time").val();
 		var commentAlgorithm = $("#comment-algorithm").val();
-		var cTime = $("#c-time").val();
+		var cTime = $("#comment-time").val();
 		var solution = solutionEditor.getValue();
 		var postTestQuestion = postQuestionEditor.getValue();
 		var postTime = $("#post-time").val();

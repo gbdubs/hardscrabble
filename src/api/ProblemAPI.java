@@ -38,10 +38,10 @@ public class ProblemAPI {
 		p.postQuestion = req.getParameter("postQuestion");
 		p.solution = req.getParameter("solution");
 		p.preTime = safeParseInt(req.getParameter("preTime"));
-		p.qTime = safeParseInt(req.getParameter("qTime"));
+		p.questionTime = safeParseInt(req.getParameter("qTime"));
 		p.postTime = safeParseInt(req.getParameter("postTime"));
 		p.commentAlgorithm = req.getParameter("commentAlgorithm");
-		p.cTime = safeParseInt(req.getParameter("cTime"));
+		p.commentTime = safeParseInt(req.getParameter("cTime"));
 		p.chatTime = safeParseInt(req.getParameter("chatTime"));
 		
 		p.save();
