@@ -21,6 +21,12 @@ public class ProblemAPI {
 
 	private static DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 	
+	private static int currentProblemUpdateInterval = 10000;
+	private static long currentProblemLastCheck = 0L;
+	private static String currentProblem = null;
+	private static int currentProblemRun = -1;
+	
+	
 	/**
 	 * Attempts to update (or create) a problem from a Servlet Request. If
 	 * no such update is possible it returns false.
@@ -61,7 +67,10 @@ public class ProblemAPI {
 		return true;
 	}
 	
-	
+	/**
+	 * Returns a list of all problems defined in the database, 
+	 * in descending order of when the were last edited.
+	 */
 	public static List<Problem> getAllProblems(){
 		List<Problem> results = new ArrayList<Problem>();
 		Query q = new Query("Problem").addSort("lastEdit", SortDirection.DESCENDING);
@@ -72,41 +81,65 @@ public class ProblemAPI {
 		return results;
 	}
 
+	/**
+	 * Deletes a problem from the database
+	 */
 	public static void deleteProblem(String uuid) {
 		datastore.delete(KeyFactory.createKey("Problem", uuid));
 	}
 
-	public static int safeParseInt(String s){
+	// Utility method that parses and int and defaults to zero.
+	private static int safeParseInt(String s){
 		try{
 			return Integer.parseInt(s);
 		} catch (java.lang.NumberFormatException nfe){
 			return 0;
 		}
 	}
-	
+
+	// Sets the current problem to the specified UUID
 	public static void setCurrentProblem(String uuid){
 		Entity e = new Entity(KeyFactory.createKey("Current", "Problem"));
 		e.setProperty("uuid", uuid);
 		datastore.put(e);
 	}
 	
+	// See checkForUpdateToCurrentProblem()
 	public static String getCurrentProblem(){
-		Entity e;
-		try {
-			e = datastore.get(KeyFactory.createKey("Current", "Problem"));
-		} catch (EntityNotFoundException e1) {
-			return null;
-		}
-		return (String) e.getProperty("uuid");
+		checkForUpdateToCurrentProblem();
+		return currentProblem;
 	}
 
+	// See checkForUpdateToCurrentProblem()
 	public static int getCurrentProblemRun() {
-		Problem p;
-		try {
-			p = new Problem(getCurrentProblem());
-		} catch (EntityNotFoundException e) {
-			return -1;
+		checkForUpdateToCurrentProblem();
+		return currentProblemRun;
+	}
+	
+	/*
+	 * Since we store the definitions for currentProblem and currentProblemRun in the
+	 * instantiated class (to prevent repetitive calls to read it), we need to make sure
+	 * that it does not get stale.  This checks for an update and only updates once per
+	 * ten seconds.  This is a solid way of avoiding hundreds of database reads.
+	 */
+	private static void checkForUpdateToCurrentProblem(){
+		if (currentProblemLastCheck == 0L || 
+			currentProblem == null ||
+			currentProblemRun == -1 ||
+			System.currentTimeMillis() - currentProblemLastCheck < currentProblemUpdateInterval){
+			
+			
+			Entity e;
+			try {
+				e = datastore.get(KeyFactory.createKey("Current", "Problem"));
+			} catch (EntityNotFoundException e1) {
+				return;
+			}
+			Problem p = new Problem(e);
+			
+			currentProblem = p.getUuid();
+			currentProblemRun = p.getProblemRun();
+			currentProblemLastCheck = System.currentTimeMillis();
 		}
-		return p.problemRun;
 	}
 }
