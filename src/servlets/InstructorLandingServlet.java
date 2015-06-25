@@ -24,6 +24,8 @@ public class InstructorLandingServlet extends HttpServlet {
 			RequestDispatcher jsp = req.getRequestDispatcher("/WEB-INF/pages/instructor-landing.jsp");	
 			jsp.forward(req, resp);
 			
+		} else {
+			resp.sendRedirect("/404");
 		}
 	}
 }

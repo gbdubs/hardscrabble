@@ -47,6 +47,8 @@ public class EditProblemServlet extends HttpServlet{
 				ProblemAPI.updateProblemFromRequest(req);
 				resp.sendRedirect("/instructor");
 			}
+		} else {
+			resp.sendRedirect("404");
 		}
 	}
 }
