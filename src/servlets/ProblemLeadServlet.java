@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import tools.UuidTools;
 import models.Problem;
+import api.AuthenticationAPI;
 import api.CurrentAPI;
 import api.PairingAPI;
 
@@ -19,30 +20,32 @@ import com.google.appengine.api.datastore.EntityNotFoundException;
 public class ProblemLeadServlet extends HttpServlet{
 
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
-		
-		String uuid = UuidTools.parseUuidFromUrl(req.getRequestURI());
-		if (uuid == null){
-			uuid = (String) req.getAttribute("uuid");
-		}
-		if (uuid == null || uuid.length() == 0){
-			resp.getWriter().println("Problem with UUID=" + uuid + " not found. Sorry!");
-		} else {
-			try {
-				req.setAttribute("problem", new Problem(uuid));
-				CurrentAPI.setCurrentProblem(uuid);
-			} catch (EntityNotFoundException e) {
-				resp.getWriter().println("Problem with UUID=" + uuid + " not found. Sorry!");
+		if (AuthenticationAPI.isUserAdministrator()){
+			String uuid = UuidTools.parseUuidFromUrl(req.getRequestURI());
+			if (uuid == null){
+				uuid = (String) req.getAttribute("uuid");
 			}
-			
-			resp.setContentType("text/html");
-			RequestDispatcher jsp = req.getRequestDispatcher("/WEB-INF/pages/problem-leader.jsp");	
-			jsp.forward(req, resp);
+			if (uuid == null || uuid.length() == 0){
+				resp.getWriter().println("Problem with UUID=" + uuid + " not found. Sorry!");
+			} else {
+				try {
+					req.setAttribute("problem", new Problem(uuid));
+					CurrentAPI.setCurrentProblem(uuid);
+				} catch (EntityNotFoundException e) {
+					resp.getWriter().println("Problem with UUID=" + uuid + " not found. Sorry!");
+				}
+				
+				resp.setContentType("text/html");
+				RequestDispatcher jsp = req.getRequestDispatcher("/WEB-INF/pages/problem-leader.jsp");	
+				jsp.forward(req, resp);
+			}
+		} else {
+			resp.sendRedirect("/404");
 		}
 	}
 	
 	public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
-		
-		if (req.getParameter("advance") != null){
+		if (AuthenticationAPI.isUserAdministrator() && req.getParameter("advance") != null){
 			String uuid = req.getParameter("uuid");
 			try {
 				Problem p = new Problem(uuid);

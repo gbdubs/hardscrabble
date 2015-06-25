@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import tools.UuidTools;
 import models.Problem;
+import api.AuthenticationAPI;
 import api.ProblemAPI;
 
 import com.google.appengine.api.datastore.EntityNotFoundException;
@@ -17,31 +18,35 @@ import com.google.appengine.api.datastore.EntityNotFoundException;
 @SuppressWarnings("serial")
 public class EditProblemServlet extends HttpServlet{
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
-		
-		String uuid = UuidTools.parseUuidFromUrl(req.getRequestURI());
-		if (uuid != null){
-			try {
-				Problem p = new Problem(uuid);
-				req.setAttribute("problem", p);
-			} catch (EntityNotFoundException e) {
-				resp.sendRedirect("/404");
-				return;
+		if (AuthenticationAPI.isUserAdministrator()){
+			String uuid = UuidTools.parseUuidFromUrl(req.getRequestURI());
+			if (uuid != null){
+				try {
+					Problem p = new Problem(uuid);
+					req.setAttribute("problem", p);
+				} catch (EntityNotFoundException e) {
+					resp.sendRedirect("/404");
+					return;
+				}
 			}
+			
+			resp.setContentType("text/html");
+			RequestDispatcher jsp = req.getRequestDispatcher("/WEB-INF/pages/editor.jsp");	
+			jsp.forward(req, resp);
+		} else {
+			resp.sendRedirect("/404");
 		}
-		
-		resp.setContentType("text/html");
-		RequestDispatcher jsp = req.getRequestDispatcher("/WEB-INF/pages/editor.jsp");	
-		jsp.forward(req, resp);
 	}
 	
 	public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
-		if (req.getParameter("delete") != null){
-			ProblemAPI.deleteProblem(req.getParameter("uuid"));
-			resp.sendRedirect("/antonella");
-			return;
+		if (AuthenticationAPI.isUserAdministrator()){
+			if (req.getParameter("delete") != null){
+				ProblemAPI.deleteProblem(req.getParameter("uuid"));
+				resp.sendRedirect("/instructor");
+			} else {
+				ProblemAPI.updateProblemFromRequest(req);
+				resp.sendRedirect("/instructor");
+			}
 		}
-		
-		ProblemAPI.updateProblemFromRequest(req);
-		resp.sendRedirect("/antonella");
 	}
 }
