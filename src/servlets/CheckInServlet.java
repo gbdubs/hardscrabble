@@ -29,11 +29,11 @@ public class CheckInServlet extends HttpServlet{
 	private static UserService userService = UserServiceFactory.getUserService();
 	private static DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 	
-	private static final int POLL_INTERVAL = 10;
+	private static final int POLL_INTERVAL = 30;
 	
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
 		
-		List<String> userEmails = getCurrentlyLoggedIn();
+		List<String> userEmails = getCurrentlyCheckedInEmails();
 
 		Collections.sort(userEmails);
 		
@@ -47,10 +47,6 @@ public class CheckInServlet extends HttpServlet{
 	}
 	
 	public void doPost(HttpServletRequest req, HttpServletResponse resp){
-		recordCheckIn();
-	}
-	
-	public static void recordCheckIn(){
 		User user = userService.getCurrentUser();
 		if (user != null){
 			String userId = user.getUserId();
@@ -68,11 +64,8 @@ public class CheckInServlet extends HttpServlet{
 		}
 	}
 	
-	public static List<String> getCurrentlyLoggedIn(){
-		Query q = new Query("LastCheckIn");
-		FilterPredicate f = new FilterPredicate("lastCheckIn", Query.FilterOperator.GREATER_THAN_OR_EQUAL, System.currentTimeMillis() - 1000 * 2 * POLL_INTERVAL);
-		q.setFilter(f);
-		PreparedQuery pq = datastore.prepare(q);
+	public static List<String> getCurrentlyCheckedInEmails(){
+		PreparedQuery pq = getRecentlyCheckedIn();
 		List<String> results = new ArrayList<String>();
 		for (Entity e : pq.asIterable()){
 			results.add((String) e.getProperty("userEmail"));
@@ -80,16 +73,24 @@ public class CheckInServlet extends HttpServlet{
 		return results;
 	}
 	
-	public static List<String> getCurrentlyLoggedInUserIds(){
-		Query q = new Query("LastCheckIn");
-		FilterPredicate f = new FilterPredicate("lastCheckIn", Query.FilterOperator.GREATER_THAN_OR_EQUAL, System.currentTimeMillis() - 1000 * 2 * POLL_INTERVAL);
-		q.setFilter(f);
-		PreparedQuery pq = datastore.prepare(q);
+	public static List<String> getCurrentlyCheckedInUserIds(){
+		PreparedQuery pq = getRecentlyCheckedIn();
 		List<String> results = new ArrayList<String>();
 		for (Entity e : pq.asIterable()){
 			results.add((String) e.getProperty("userId"));
 		}
 		return results;
+	}
+	
+	private static PreparedQuery getRecentlyCheckedIn(){
+		Query q = new Query("LastCheckIn");
+		
+		// As a Cutoff, we will use the poll interval (30 seconds), and a 5 second buffer to allow for slow updates with similar cadence.
+		long cutoff = System.currentTimeMillis() - 1000 * (POLL_INTERVAL + 5);
+		FilterPredicate f = new FilterPredicate("lastCheckIn", Query.FilterOperator.GREATER_THAN_OR_EQUAL, cutoff);
+		q.setFilter(f);
+		PreparedQuery pq = datastore.prepare(q);
+		return pq;
 	}
 	
 }

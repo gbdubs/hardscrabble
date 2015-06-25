@@ -23,7 +23,7 @@ public class ChatAPI {
 	private static DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 
 	public static void initializeChatPhase(){
-		List<String> allLoggedInUsers = CheckInServlet.getCurrentlyLoggedInUserIds();
+		List<String> allLoggedInUsers = CheckInServlet.getCurrentlyCheckedInUserIds();
 		Map<String, List<String>> groups = new HashMap<String, List<String>>();
 		for (String userId : allLoggedInUsers){
 			if (!groups.containsKey(userId)){

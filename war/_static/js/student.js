@@ -13,7 +13,7 @@ $(function(){
 	var currentPhase = "waiting";
 	var previousTimerIntervals = [];
 	var pollInterval = setInterval(poll, 1000);
-	var checkinInterval = setInterval(checkIn, 10000);
+	var checkinInterval = setInterval(checkIn, 30000);
 	var saveInterval = setInterval(saveCurrentPhase, 20000);
 	
 	var preTestQuestionPrompt;
