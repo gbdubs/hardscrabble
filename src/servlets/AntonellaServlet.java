@@ -1,4 +1,4 @@
-package com.antonella;
+package servlets;
 
 import java.io.IOException;
 
@@ -6,7 +6,7 @@ import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.*;
 
-import com.problem.ProblemAPI;
+import api.ProblemAPI;
 
 @SuppressWarnings("serial")
 public class AntonellaServlet extends HttpServlet {

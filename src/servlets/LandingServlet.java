@@ -1,4 +1,4 @@
-package com.antonella;
+package servlets;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -9,13 +9,14 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import models.Problem;
+import api.ProblemAPI;
+import api.ResponseAPI;
+
 import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
-import com.problem.Problem;
-import com.problem.ProblemAPI;
-import com.problem.ResponseAPI;
 
 @SuppressWarnings("serial")
 public class LandingServlet extends HttpServlet{

@@ -6,7 +6,7 @@ xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
 http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
 	<servlet>
 		<servlet-name>Antonella</servlet-name>
-		<servlet-class>com.antonella.AntonellaServlet</servlet-class>
+		<servlet-class>servlets.AntonellaServlet</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>Antonella</servlet-name>
@@ -16,7 +16,7 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
 	
 	<servlet>
 		<servlet-name>LandingServlet</servlet-name>
-		<servlet-class>com.antonella.LandingServlet</servlet-class>
+		<servlet-class>servlets.LandingServlet</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>LandingServlet</servlet-name>
@@ -26,7 +26,7 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
 	
 	<servlet>
 		<servlet-name>EditServlet</servlet-name>
-		<servlet-class>com.antonella.EditProblemServlet</servlet-class>
+		<servlet-class>servlets.EditProblemServlet</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>EditServlet</servlet-name>
@@ -36,7 +36,7 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
 	
 	<servlet>
 		<servlet-name>CheckInServlet</servlet-name>
-		<servlet-class>com.antonella.CheckInServlet</servlet-class>
+		<servlet-class>servlets.CheckInServlet</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>CheckInServlet</servlet-name>
@@ -46,7 +46,7 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
 
 	<servlet>
 		<servlet-name>ProblemLeadServlet</servlet-name>
-		<servlet-class>com.antonella.ProblemLeadServlet</servlet-class>
+		<servlet-class>servlets.ProblemLeadServlet</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>ProblemLeadServlet</servlet-name>
@@ -55,7 +55,7 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
 	
 	<servlet>
 		<servlet-name>ChatServlet</servlet-name>
-		<servlet-class>com.antonella.ChatServlet</servlet-class>
+		<servlet-class>servlets.ChatServlet</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>ChatServlet</servlet-name>

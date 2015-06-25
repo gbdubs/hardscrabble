@@ -1,4 +1,4 @@
-package com.antonella;
+package servlets;
 
 import java.io.IOException;
 
@@ -8,9 +8,11 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import tools.UuidTools;
+import models.Problem;
+import api.ProblemAPI;
+
 import com.google.appengine.api.datastore.EntityNotFoundException;
-import com.problem.Problem;
-import com.problem.ProblemAPI;
 
 @SuppressWarnings("serial")
 public class EditProblemServlet extends HttpServlet{

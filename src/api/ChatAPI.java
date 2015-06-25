@@ -1,4 +1,4 @@
-package com.problem;
+package api;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -6,7 +6,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
-import com.antonella.CheckInServlet;
+import models.Problem;
+import servlets.CheckInServlet;
+
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
@@ -37,6 +39,7 @@ public class ChatAPI {
 			}
 		}
 		for (List<String> group : groups.values()){
+			while(group.remove(null)){}
 			createChat(group);
 		}
 	}
