@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import tools.UuidTools;
 import models.Problem;
 
 import com.google.appengine.api.datastore.DatastoreService;
@@ -20,15 +21,27 @@ public class ProblemAPI {
 
 	private static DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 	
-	public static void updateProblemFromRequest(HttpServletRequest req){
+	/**
+	 * Attempts to update (or create) a problem from a Servlet Request. If
+	 * no such update is possible it returns false.
+	 * @param req A Request to update a problem definition
+	 * @return Whether or not the operation was completed successfully.
+	 */
+	public static boolean updateProblemFromRequest(HttpServletRequest req){
 		
-		// Create a new problem if the UUID is not specified.
+		// Create a new problem (with a new UUID) if a UUID is not specified by the request.
 		Problem p = new Problem();
+		
 		if (req.getParameter("uuid") != null && req.getParameter("uuid").length() > 0){
-			try {
-				p = new Problem((String) req.getParameter("uuid"));
-			} catch (EntityNotFoundException e) {
-				return; // Simply return if the problem is not found.
+			String uuid = UuidTools.parseUuidFromUrl((String) req.getParameter("uuid"));
+			if (uuid != null){
+				try {
+					p = new Problem(uuid);
+				} catch (EntityNotFoundException e) {
+					return false; // Simply return if the problem is not found.
+				}
+			} else {
+				return false;
 			}
 		}
 		
@@ -38,14 +51,16 @@ public class ProblemAPI {
 		p.postQuestion = req.getParameter("postQuestion");
 		p.solution = req.getParameter("solution");
 		p.preTime = safeParseInt(req.getParameter("preTime"));
-		p.questionTime = safeParseInt(req.getParameter("qTime"));
+		p.questionTime = safeParseInt(req.getParameter("questionTime"));
 		p.postTime = safeParseInt(req.getParameter("postTime"));
 		p.commentAlgorithm = req.getParameter("commentAlgorithm");
-		p.commentTime = safeParseInt(req.getParameter("cTime"));
+		p.commentTime = safeParseInt(req.getParameter("commentTime"));
 		p.chatTime = safeParseInt(req.getParameter("chatTime"));
 		
 		p.save();
+		return true;
 	}
+	
 	
 	public static List<Problem> getAllProblems(){
 		List<Problem> results = new ArrayList<Problem>();
