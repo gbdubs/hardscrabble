@@ -57,7 +57,14 @@ public class CurrentAPI {
 			} catch (EntityNotFoundException e1) {
 				return;
 			}
-			Problem p = new Problem(e);
+			String uuid = (String) e.getProperty("uuid");
+			
+			Problem p;
+			try {
+				p = new Problem(uuid);
+			} catch (EntityNotFoundException e1) {
+				return;
+			}
 			
 			currentProblem = p.getUuid();
 			currentProblemRun = p.getProblemRun();

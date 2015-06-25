@@ -21,6 +21,7 @@
 				<h3>Your class is not currently in session.</h3>
 				<h3>But feel free to <a href="/history">view your previous responses</a>.</h3>
 				<h3>Periodically <a href="/home">Reload</a> this page to see if your class has begun.</h3>
+				<h3>or <a href="${logoutUrl}">log out.</h3>
 			</c:if>
 		</div>
 		

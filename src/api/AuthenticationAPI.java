@@ -28,6 +28,6 @@ public class AuthenticationAPI {
 			return false;
 		}
 		
-		return acceptedAdministrators.contains(user.getEmail());
+		return acceptedAdministrators.contains(user.getEmail()) || userService.isUserAdmin();
 	}
 }

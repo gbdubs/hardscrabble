@@ -29,9 +29,11 @@ public class StudentServlet extends HttpServlet{
 		String problemUuid = CurrentAPI.getCurrentProblem();
 		User user = UserServiceFactory.getUserService().getCurrentUser();
 		String loginUrl = UserServiceFactory.getUserService().createLoginURL("/home");
+		String logoutUrl = UserServiceFactory.getUserService().createLogoutURL("/home");
 		
 		req.setAttribute("user", user);
 		req.setAttribute("loginUrl", loginUrl);
+		req.setAttribute("logoutUrl", logoutUrl);
 		
 		if (problemUuid != null){
 			Problem p;

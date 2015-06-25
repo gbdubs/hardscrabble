@@ -28,6 +28,7 @@
 					<h3>The example has now closed. Goodbye!</h3>
 				</div>	
 				<h3>Or you can <a href="/history">view your previous responses</a></h3>
+				<h3>or <a href="${logoutUrl}">log out.</a></h3>
 			</c:if>
 		</div>
 		
