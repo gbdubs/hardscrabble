@@ -36,7 +36,7 @@ public class InstructorPresentationServlet extends HttpServlet{
 				}
 				
 				resp.setContentType("text/html");
-				RequestDispatcher jsp = req.getRequestDispatcher("/WEB-INF/pages/problem-leader.jsp");	
+				RequestDispatcher jsp = req.getRequestDispatcher("/WEB-INF/pages/instructor-presentation.jsp");	
 				jsp.forward(req, resp);
 			}
 		} else {

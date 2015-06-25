@@ -42,7 +42,7 @@ public class StudentServlet extends HttpServlet{
 				}
 			
 				resp.setContentType("text/html");
-				RequestDispatcher jsp = req.getRequestDispatcher("/WEB-INF/pages/landing.jsp");	
+				RequestDispatcher jsp = req.getRequestDispatcher("/WEB-INF/pages/student.jsp");	
 				jsp.forward(req, resp);
 				return;
 			} catch (EntityNotFoundException e) {
@@ -56,15 +56,13 @@ public class StudentServlet extends HttpServlet{
 	
 	public void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException{
 		User user = UserServiceFactory.getUserService().getCurrentUser();
-		if (user == null){
-			return;
-		}
+		if (user == null){ return; }
+		
 		String userId = user.getUserId();
 		String problemUuid = CurrentAPI.getCurrentProblem();
 		String responseType = req.getParameter("currentPhase");
 		String response = req.getParameter("response");
 		
-		System.out.println("Saved: ["+userId+"] ["+problemUuid+"] ["+responseType+"] ["+response+"]");
 		ResponseAPI.saveResponse(problemUuid, userId, responseType, response);
 	}
 	
@@ -116,7 +114,5 @@ public class StudentServlet extends HttpServlet{
 		}
 		
 		return false;
-		
 	}
-
 }
