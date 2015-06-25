@@ -5,11 +5,15 @@ xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
 http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
 	<servlet>
-		<servlet-name>Antonella</servlet-name>
-		<servlet-class>servlets.AntonellaServlet</servlet-class>
+		<servlet-name>InstructorServlet</servlet-name>
+		<servlet-class>servlets.InstructorLandingServlet</servlet-class>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>Antonella</servlet-name>
+		<servlet-name>InstructorServlet</servlet-name>
+		<url-pattern>/instructor</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>InstructorServlet</servlet-name>
 		<url-pattern>/antonella</url-pattern>
 	</servlet-mapping>
 	
