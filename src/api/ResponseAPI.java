@@ -38,7 +38,7 @@ public class ResponseAPI {
 		e.setProperty("problemUuid", problemUuid);
 		e.setProperty("responseType", responseType);
 		e.setProperty("response", response);
-		e.setProperty("problemRun", ProblemAPI.getCurrentProblemRun());
+		e.setProperty("problemRun", CurrentAPI.getCurrentProblemRun());
 		datastore.put(e);
 	}
 	
@@ -82,7 +82,7 @@ public class ResponseAPI {
 		Collection<Filter> filters = new ArrayList<Filter>();
 		filters.add(new FilterPredicate("problemUuid", FilterOperator.EQUAL, problemUuid));
 		filters.add(new FilterPredicate("responseType", FilterOperator.EQUAL, "question"));
-		filters.add(new FilterPredicate("problemRun", FilterOperator.EQUAL, ProblemAPI.getCurrentProblemRun()));
+		filters.add(new FilterPredicate("problemRun", FilterOperator.EQUAL, CurrentAPI.getCurrentProblemRun()));
 		CompositeFilter filter = new CompositeFilter(CompositeFilterOperator.AND, filters);
 		q.setFilter(filter);
 		

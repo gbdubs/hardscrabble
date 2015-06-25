@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import models.Problem;
-import api.ProblemAPI;
+import api.CurrentAPI;
 import api.ResponseAPI;
 
 import com.google.appengine.api.datastore.EntityNotFoundException;
@@ -47,7 +47,7 @@ public class LandingServlet extends HttpServlet{
 			return;
 		}
 		String userId = user.getUserId();
-		String problemUuid = ProblemAPI.getCurrentProblem();
+		String problemUuid = CurrentAPI.getCurrentProblem();
 		String responseType = req.getParameter("currentPhase");
 		String response = req.getParameter("response");
 		
@@ -57,7 +57,7 @@ public class LandingServlet extends HttpServlet{
 	
 	public boolean returnSimpleDataIfAsked(HttpServletRequest req, HttpServletResponse resp) throws IOException{
 		try {
-			Problem p = new Problem(ProblemAPI.getCurrentProblem());
+			Problem p = new Problem(CurrentAPI.getCurrentProblem());
 			PrintWriter pw = resp.getWriter();
 			
 			if (req.getParameter("getPhase") != null){
@@ -81,7 +81,7 @@ public class LandingServlet extends HttpServlet{
 			} else if (req.getParameter("getMyResponse") != null){
 				if (userService.isUserLoggedIn()){
 					String userId = userService.getCurrentUser().getUserId();
-					pw.print(ResponseAPI.getQuestionResponse(ProblemAPI.getCurrentProblem(), userId));
+					pw.print(ResponseAPI.getQuestionResponse(CurrentAPI.getCurrentProblem(), userId));
 					return true;
 				}
 			} else if (req.getParameter("getPartnerQuestionResponse") != null){
@@ -99,7 +99,7 @@ public class LandingServlet extends HttpServlet{
 			} else if (req.getParameter("getMyComments") != null){
 				if (userService.isUserLoggedIn()){
 					String userId = userService.getCurrentUser().getUserId();
-					pw.print(ResponseAPI.getCommentResponse(ProblemAPI.getCurrentProblem(), userId));
+					pw.print(ResponseAPI.getCommentResponse(CurrentAPI.getCurrentProblem(), userId));
 					return true;
 				}
 			}

@@ -31,7 +31,7 @@ public class ChatAPI {
 				String current = userId;
 				while(!chatGroup.contains(current)){
 					chatGroup.add(current);
-					current = ResponseAPI.getPairedUserId(ProblemAPI.getCurrentProblem(), current);
+					current = ResponseAPI.getPairedUserId(CurrentAPI.getCurrentProblem(), current);
 				}
 				for (String chatter : chatGroup){
 					groups.put(chatter, chatGroup);
@@ -70,7 +70,7 @@ public class ChatAPI {
 	private static Entity getCurrentChatSwitchboard(){
 		Problem p;
 		try {
-			p = new Problem(ProblemAPI.getCurrentProblem());
+			p = new Problem(CurrentAPI.getCurrentProblem());
 		} catch (EntityNotFoundException e1) {
 			return null;
 		}

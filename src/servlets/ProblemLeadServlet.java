@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import tools.UuidTools;
 import models.Problem;
-import api.ProblemAPI;
+import api.CurrentAPI;
 import api.ResponseAPI;
 
 import com.google.appengine.api.datastore.EntityNotFoundException;
@@ -29,7 +29,7 @@ public class ProblemLeadServlet extends HttpServlet{
 		} else {
 			try {
 				req.setAttribute("problem", new Problem(uuid));
-				ProblemAPI.setCurrentProblem(uuid);
+				CurrentAPI.setCurrentProblem(uuid);
 			} catch (EntityNotFoundException e) {
 				resp.getWriter().println("Problem with UUID=" + uuid + " not found. Sorry!");
 			}
