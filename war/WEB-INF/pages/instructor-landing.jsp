@@ -25,7 +25,7 @@
 							<span>${problem.title}</span>
 							<span>${problem.lastEdit}</span>
 							<a href="/edit/${problem.uuid}" class="btn btn-blue">Edit</a>
-							<a href="/problem/lead/${problem.uuid}" class="btn">Begin</a>
+							<a href="/problem/${problem.uuid}" class="btn">Begin</a>
 						</div>
 					</c:forEach>
 		

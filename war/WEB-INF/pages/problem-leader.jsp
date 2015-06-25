@@ -10,7 +10,7 @@
 		<div class="content-wrapper">
 			<div class="content">
 				<div class="full-width-centered">
-					<a href="/antonella" class="btn">Back to Dashboard</a>
+					<a href="/instructor" class="btn">Back to Dashboard</a>
 				<div class="full-width-centered">
 				<div class="split-screen">
 					<h2>Current Problem: ${problem.title}</h2>
@@ -23,7 +23,7 @@
 				<br/>
 				<div class="split-screen">
 					<h2>Current Phase: <b class="current-phase">${problem.currentPhase}</h2>
-					<form action="/problem/lead" method="post">
+					<form action="/problem/" method="post">
 						<input type="hidden" name="uuid" value="${problem.uuid}"/>
 						<input type="hidden" name="advance" value="advance"/>
 						<button class="btn btn-red">

@@ -17,7 +17,7 @@ import api.PairingAPI;
 import com.google.appengine.api.datastore.EntityNotFoundException;
 
 @SuppressWarnings("serial")
-public class ProblemLeadServlet extends HttpServlet{
+public class InstructorPresentationServlet extends HttpServlet{
 
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
 		if (AuthenticationAPI.isUserAdministrator()){
@@ -53,7 +53,7 @@ public class ProblemLeadServlet extends HttpServlet{
 				if (p.currentPhase.equals("comment")){
 					PairingAPI.constructPairings(uuid);
 				}
-				resp.sendRedirect("/problem/lead/" + uuid);
+				resp.sendRedirect("/problem/" + uuid);
 			} catch (EntityNotFoundException e) {
 				// If it does not exist, ignore the request.
 			}

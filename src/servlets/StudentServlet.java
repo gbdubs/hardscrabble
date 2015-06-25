@@ -20,7 +20,7 @@ import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 
 @SuppressWarnings("serial")
-public class LandingServlet extends HttpServlet{
+public class StudentServlet extends HttpServlet{
 
 	private static UserService userService = UserServiceFactory.getUserService();
 	
