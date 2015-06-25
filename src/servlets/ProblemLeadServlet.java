@@ -20,7 +20,7 @@ public class ProblemLeadServlet extends HttpServlet{
 
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
 		
-		String uuid = UuidTools.getUuidFromUrl(req.getRequestURI());
+		String uuid = UuidTools.parseUuidFromUrl(req.getRequestURI());
 		if (uuid == null){
 			uuid = (String) req.getAttribute("uuid");
 		}
