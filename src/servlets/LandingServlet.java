@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import models.Problem;
 import api.CurrentAPI;
+import api.PairingAPI;
 import api.ResponseAPI;
 
 import com.google.appengine.api.datastore.EntityNotFoundException;
@@ -87,13 +88,13 @@ public class LandingServlet extends HttpServlet{
 			} else if (req.getParameter("getPartnerQuestionResponse") != null){
 				if (userService.isUserLoggedIn()){
 					String userId = userService.getCurrentUser().getUserId();
-					pw.print(ResponseAPI.getPairedQuestionResponse(p.getUuid(), userId));
+					pw.print(PairingAPI.getPairedQuestionResponse(p.getUuid(), userId));
 					return true;
 				}
 			} else if (req.getParameter("getPartnerCommentResponse") != null){
 				if (userService.isUserLoggedIn()){
 					String userId = userService.getCurrentUser().getUserId();
-					pw.print(ResponseAPI.getPairedCommentResponse(p.getUuid(), userId));
+					pw.print(PairingAPI.getPairedCommentResponse(p.getUuid(), userId));
 					return true;
 				}
 			} else if (req.getParameter("getMyComments") != null){

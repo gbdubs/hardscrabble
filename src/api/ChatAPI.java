@@ -31,7 +31,7 @@ public class ChatAPI {
 				String current = userId;
 				while(!chatGroup.contains(current)){
 					chatGroup.add(current);
-					current = ResponseAPI.getPairedUserId(CurrentAPI.getCurrentProblem(), current);
+					current = PairingAPI.getPairedUserId(CurrentAPI.getCurrentProblem(), current);
 				}
 				for (String chatter : chatGroup){
 					groups.put(chatter, chatGroup);

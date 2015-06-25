@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import tools.UuidTools;
 import models.Problem;
 import api.CurrentAPI;
-import api.ResponseAPI;
+import api.PairingAPI;
 
 import com.google.appengine.api.datastore.EntityNotFoundException;
 
@@ -48,7 +48,7 @@ public class ProblemLeadServlet extends HttpServlet{
 				Problem p = new Problem(uuid);
 				p.advance();
 				if (p.currentPhase.equals("comment")){
-					ResponseAPI.constructPairings(uuid);
+					PairingAPI.constructPairings(uuid);
 				}
 				resp.sendRedirect("/problem/lead/" + uuid);
 			} catch (EntityNotFoundException e) {
