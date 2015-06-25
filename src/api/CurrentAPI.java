@@ -18,6 +18,9 @@ public class CurrentAPI {
 	private static String currentProblem = null;
 	private static int currentProblemRun = -1;
 	
+	private static int currentPhaseUpdateInterval = 10000;
+	private static long currentPhaseLastCheck = 0L;
+	private static String currentPhase = null;
 	
 	// Sets the current problem to the specified UUID
 	public static void setCurrentProblem(String uuid){
@@ -44,11 +47,11 @@ public class CurrentAPI {
 	 * that it does not get stale.  This checks for an update and only updates once per
 	 * ten seconds.  This is a solid way of avoiding hundreds of database reads.
 	 */
-	static void checkForUpdateToCurrentProblem(){
+	private static void checkForUpdateToCurrentProblem(){
 		if (currentProblemLastCheck == 0L || 
 			currentProblem == null ||
 			currentProblemRun == -1 ||
-			System.currentTimeMillis() - currentProblemLastCheck < currentProblemUpdateInterval){
+			System.currentTimeMillis() - currentProblemLastCheck > currentProblemUpdateInterval){
 			
 			
 			Entity e;
@@ -70,5 +73,28 @@ public class CurrentAPI {
 			currentProblemRun = p.getProblemRun();
 			currentProblemLastCheck = System.currentTimeMillis();
 		}
+	}
+	
+	private static void checkForUpdateToCurrentPhase(){
+		if (currentPhaseLastCheck == 0L || 
+			currentPhase == null ||
+			System.currentTimeMillis() - currentPhaseLastCheck > currentPhaseUpdateInterval){
+			
+			Problem p;
+			try {
+				p = new Problem(getCurrentProblem());
+			} catch (EntityNotFoundException e) {
+				return;
+			}
+			
+			currentPhase = p.getCurrentPhase();
+			
+			currentPhaseLastCheck = System.currentTimeMillis();
+		}
+	}
+
+	public static String getCurrentPhase() {
+		checkForUpdateToCurrentPhase();
+		return currentPhase;
 	}
 }

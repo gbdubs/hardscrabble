@@ -27,6 +27,11 @@ public class StudentServlet extends HttpServlet{
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException{
 		
 		String problemUuid = CurrentAPI.getCurrentProblem();
+				
+		if (returnSimpleDataIfAsked(problemUuid, req, resp)){
+			return;
+		}
+	
 		User user = UserServiceFactory.getUserService().getCurrentUser();
 		String loginUrl = UserServiceFactory.getUserService().createLoginURL("/home");
 		String logoutUrl = UserServiceFactory.getUserService().createLogoutURL("/home");
@@ -34,26 +39,18 @@ public class StudentServlet extends HttpServlet{
 		req.setAttribute("user", user);
 		req.setAttribute("loginUrl", loginUrl);
 		req.setAttribute("logoutUrl", logoutUrl);
+
 		
-		if (problemUuid != null){
-			Problem p;
-			try {
-				p = new Problem(problemUuid);
-				if (returnSimpleDataIfAsked(p, req, resp)){
-					return;
-				}
-			
-				resp.setContentType("text/html");
-				RequestDispatcher jsp = req.getRequestDispatcher("/WEB-INF/pages/student.jsp");	
-				jsp.forward(req, resp);
-				return;
-			} catch (EntityNotFoundException e) {
-				// Allow this case to "Plop" into the next one.
-			}
-		}
 		resp.setContentType("text/html");
-		RequestDispatcher jsp = req.getRequestDispatcher("/WEB-INF/pages/no-current-problem.jsp");	
+		RequestDispatcher jsp;
+		if (problemUuid != null){
+			jsp = req.getRequestDispatcher("/WEB-INF/pages/student.jsp");	
+		} else {
+			jsp = req.getRequestDispatcher("/WEB-INF/pages/no-current-problem.jsp");	
+		}
+		
 		jsp.forward(req, resp);
+		return;
 	}
 	
 	public void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException{
@@ -68,13 +65,21 @@ public class StudentServlet extends HttpServlet{
 		ResponseAPI.saveResponse(problemUuid, userId, responseType, response);
 	}
 	
-	public boolean returnSimpleDataIfAsked(Problem p, HttpServletRequest req, HttpServletResponse resp) throws IOException{
+	public boolean returnSimpleDataIfAsked(String problemUuid, HttpServletRequest req, HttpServletResponse resp) throws IOException{
 		PrintWriter pw = resp.getWriter();
 		
 		if (req.getParameter("getPhase") != null){
-			pw.print(p.getCurrentPhase());
+			pw.print(CurrentAPI.getCurrentPhase());
 			return true;
-		} else if (req.getParameter("getPreQuestion") != null){
+		}
+		Problem p;
+		try {
+			p = new Problem(problemUuid);
+		} catch (EntityNotFoundException e) {
+			return false;
+		}
+		
+		if (req.getParameter("getPreQuestion") != null){
 			pw.print(p.getPreQuestion());
 			return true;
 		} else if (req.getParameter("getPostQuestion") != null){
