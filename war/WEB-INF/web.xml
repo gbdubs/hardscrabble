@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns="http://java.sun.com/xml/ns/javaee"
+xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
+	<servlet>
+		<servlet-name>Antonella</servlet-name>
+		<servlet-class>com.antonella.AntonellaServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Antonella</servlet-name>
+		<url-pattern>/antonella</url-pattern>
+	</servlet-mapping>
+	
+	
+	<servlet>
+		<servlet-name>LandingServlet</servlet-name>
+		<servlet-class>com.antonella.LandingServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>LandingServlet</servlet-name>
+		<url-pattern>/home</url-pattern>
+	</servlet-mapping>
+	
+	
+	<servlet>
+		<servlet-name>EditServlet</servlet-name>
+		<servlet-class>com.antonella.EditProblemServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>EditServlet</servlet-name>
+		<url-pattern>/edit/*</url-pattern>
+	</servlet-mapping>
+	
+	
+	<servlet>
+		<servlet-name>CheckInServlet</servlet-name>
+		<servlet-class>com.antonella.CheckInServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>CheckInServlet</servlet-name>
+		<url-pattern>/check-in</url-pattern>
+	</servlet-mapping>
+	
+
+	<servlet>
+		<servlet-name>ProblemLeadServlet</servlet-name>
+		<servlet-class>com.antonella.ProblemLeadServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>ProblemLeadServlet</servlet-name>
+		<url-pattern>/problem/lead/*</url-pattern>
+	</servlet-mapping>
+	
+	<servlet>
+		<servlet-name>ChatServlet</servlet-name>
+		<servlet-class>com.antonella.ChatServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>ChatServlet</servlet-name>
+		<url-pattern>/chat</url-pattern>
+	</servlet-mapping>
+	
+</web-app>
