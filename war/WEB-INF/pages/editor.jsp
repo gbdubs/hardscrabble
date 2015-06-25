@@ -72,6 +72,6 @@
 		
 		<script src="/_static/js/ace-min-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
 		<script src="http://code.jquery.com/jquery-latest.min.js" type="text/javascript"></script>
-		<script src="/_static/js/editor.js" type="text/javascript"></script>
+		<script src="/_static/js/problem-editor.js" type="text/javascript"></script>
 	</body>
 </html>

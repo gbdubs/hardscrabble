@@ -36,7 +36,6 @@
 		</div>
 		
 		<script src="http://code.jquery.com/jquery-latest.min.js" type="text/javascript"></script>
-		<script src="/_static/js/timer.js" type="text/javascript"></script>
-		<script src="/_static/js/problem-lead.js" type="text/javascript"></script>
+		<script src="/_static/js/instructor-presentation.js" type="text/javascript"></script>
 	</body>
 </html>
