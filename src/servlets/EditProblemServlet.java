@@ -18,7 +18,7 @@ import com.google.appengine.api.datastore.EntityNotFoundException;
 @SuppressWarnings("serial")
 public class EditProblemServlet extends HttpServlet{
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
-		if (AuthenticationAPI.isUserAdministrator()){
+		if (AuthenticationAPI.isUserInstructor()){
 			String uuid = UuidTools.parseUuidFromRequestUrl(req);
 			if (uuid != null){
 				try {
@@ -39,7 +39,7 @@ public class EditProblemServlet extends HttpServlet{
 	}
 	
 	public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
-		if (AuthenticationAPI.isUserAdministrator()){
+		if (AuthenticationAPI.isUserInstructor()){
 			if (req.getParameter("delete") != null){
 				ProblemAPI.deleteProblem(req.getParameter("uuid"));
 				resp.sendRedirect("/instructor");

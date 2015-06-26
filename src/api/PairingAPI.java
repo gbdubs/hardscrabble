@@ -29,30 +29,34 @@ public class PairingAPI {
 
 	private static DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 	
+	public static Entity getCurrentPairingDefinition(){
+		return getPairingDefinition(CurrentAPI.getCurrentProblem());
+	}
+	
+	public static Entity getPairingDefinition(String problemUuid){
+		try {
+			return datastore.get(KeyFactory.createKey("Pairing", problemUuid));
+		} catch (EntityNotFoundException enfe) {
+			return null;
+		}
+	}
+	
 	public static String getPairedQuestionResponse(String problemUuid, String userId){
 		return ResponseAPI.getQuestionResponse(problemUuid, getPairedUserId(problemUuid, userId));
 	}
 
 	public static String getPairedUserId(String problemUuid, String userId){
-		Entity e;
-		try {
-			e = datastore.get(KeyFactory.createKey("Pairing", problemUuid));
-		} catch (EntityNotFoundException enfe) {
-			return "[The Requested Pairing did not exist.]";
-		}
-		
+		Entity e = getPairingDefinition(problemUuid);
+		if (e == null) return null;
 		String pairedUserId = (String) e.getProperty(userId);
 		return pairedUserId;
 	}
 
 	public static String getPairedCommentResponse(String problemUuid, String userId){
-		Entity e;
-		try {
-			e = datastore.get(KeyFactory.createKey("Pairing", problemUuid));
-		} catch (EntityNotFoundException enfe) {
-			return "[The Requested Problem did not exist.]";
+		Entity e = getPairingDefinition(problemUuid);
+		if (e == null){
+			return "[ERROR: Your partner's comments could not be retrieved.]";
 		}
-		
 		String pairedUserId = (String) e.getProperty("INVERSE-" + userId);
 		return ResponseAPI.getCommentResponse(problemUuid, pairedUserId);
 	}
@@ -82,6 +86,16 @@ public class PairingAPI {
 		saveProblemCommentPairingMapping(problemUuid, userMapping);
 	}
 
+	private static void saveProblemCommentPairingMapping(String problemUuid, Map<String, String> userPairing){
+		Entity e = new Entity(KeyFactory.createKey("Pairing", problemUuid));
+		for(String user1 : userPairing.keySet()){
+			String user2 = userPairing.get(user1);
+			e.setUnindexedProperty(user1, user2);
+			e.setUnindexedProperty("INVERSE-" + user2, user1);
+		}
+		datastore.put(e);
+	}
+
 	private static Map<String, String> constructPairingsByAlgorithm(Map<String, String> userResponses, String algorithm){
 		if (algorithm.equals("random")){
 			return randomAlgorithm(userResponses);
@@ -97,47 +111,64 @@ public class PairingAPI {
 		return null;
 	}
 
-	private static class LengthComparator implements Comparator<String>{
+	private static Map<String, String> randomAlgorithm(Map<String, String> userResponses) {
+		Map<String, String> resulting = new HashMap<String, String>();
+		List<String> userIds = new ArrayList<String>(userResponses.keySet());
+		if (userIds.size() == 1){
+			resulting.put(userIds.get(0), userIds.get(0));
+			return resulting;
+		}
+		if (userIds.size() % 2 == 1){
+			String id1 = userIds.remove(0);
+			String id2 = userIds.remove(0);
+			String id3 = userIds.remove(0);
+			resulting.put(id1, id2);
+			resulting.put(id2, id3);
+			resulting.put(id3, id1);
+		}
+		
+		while(userIds.size() > 0){
+			String id1 = userIds.remove(0);
+			String id2 = userIds.remove(0);
+			resulting.put(id1, id2);
+			resulting.put(id2, id1);
+		}
+	
+		return resulting;
+	}
 
-		@Override
-		public int compare(String s1, String s2) {
-			if (s1.length() > s2.length()){
-				return 1;
-			} else if (s1.length() < s2.length()){
-				return -1;
-			} else {
-				return 0;
-			}
+	private static Map<String, String> lengthAlgorithm(Map<String, String> userResponses) {
+		Map<String, String> invertedResponses = invertMap(userResponses);
+		List<String> responses = new ArrayList<String>(invertedResponses.keySet());
+		Collections.sort(responses, new LengthComparator());
+		
+		Map<String, String> resulting = new HashMap<String, String>();
+				
+		if (responses.size() == 1){
+			String loneUser = invertedResponses.get(responses.get(0));
+			resulting.put(loneUser, loneUser);
+			return resulting;
 		}
-	}
-	
-	private static Map<String, String> makeMapInvertible(Map<String, String> original){
-		if (original.keySet().size() == original.values().size()){
-			return original;
-		} else {
-			Map<String, String> newMap = new HashMap<String, String>();
-			Set<String> allValues = new HashSet<String>();
-			for (String key : original.keySet()){
-				String value = original.get(key);
-				while (allValues.contains(value)){
-					value = value + " ";
-				}
-				newMap.put(key, value);
-				allValues.add(value);
-			}
-			return newMap;
+		
+		if (responses.size() % 2 == 1){
+			String user1 = invertedResponses.get(responses.remove(0));
+			String user2 = invertedResponses.get(responses.remove(0));
+			String user3 = invertedResponses.get(responses.remove(0));
+			resulting.put(user1, user2);
+			resulting.put(user2, user3);
+			resulting.put(user3, user1);
 		}
-	}
-	
-	private static Map<String, String> invertMap(Map<String, String> original){
-		original = makeMapInvertible(original);
-		HashMap<String, String> newMap = new HashMap<String, String>();
-		for (String key : original.keySet()){
-			newMap.put(original.get(key), key);
+		
+		while (responses.size() > 0){
+			String user1 = invertedResponses.get(responses.remove(0));
+			String user2 = invertedResponses.get(responses.remove(0));
+			resulting.put(user1, user2);
+			resulting.put(user2, user1);
 		}
-		return newMap;
+		
+		return resulting;
 	}
-	
+
 	private static Map<String, String> invLengthAlgorithm(Map<String, String> userResponses) {
 		Map<String, String> invertedResponses = invertMap(userResponses);
 		List<String> responses = new ArrayList<String>(invertedResponses.keySet());
@@ -170,9 +201,113 @@ public class PairingAPI {
 		return resulting;
 	}
 
+	private static Map<String, String> invertMap(Map<String, String> original){
+		original = makeMapInvertible(original);
+		HashMap<String, String> newMap = new HashMap<String, String>();
+		for (String key : original.keySet()){
+			newMap.put(original.get(key), key);
+		}
+		return newMap;
+	}
 	
-	private static class LevenshteinComparator implements Comparator<String>{
+	private static Map<String, String> makeMapInvertible(Map<String, String> original){
+		if (original.keySet().size() == original.values().size()){
+			return original;
+		} else {
+			Map<String, String> newMap = new HashMap<String, String>();
+			Set<String> allValues = new HashSet<String>();
+			for (String key : original.keySet()){
+				String value = original.get(key);
+				while (allValues.contains(value)){
+					value = value + " ";
+				}
+				newMap.put(key, value);
+				allValues.add(value);
+			}
+			return newMap;
+		}
+	}
 
+	private static Map<String, String> editDistanceAlgorithm(Map<String, String> userResponses) {
+		Map<String, String> responsesToUsers = invertMap(userResponses);
+		Map<String, List<String>> responsePreferences = compileEditDistancePreferenceList(responsesToUsers.keySet());
+		return generateNaieveStableSameSexMarriage(responsePreferences, responsesToUsers);
+	}
+
+	private static Map<String, String> invEditDistanceAlgorithm(Map<String, String> userResponses) {
+		Map<String, String> responsesToUsers = invertMap(userResponses);
+		Map<String, List<String>> responsePreferences = compileEditDistancePreferenceList(responsesToUsers.keySet());
+		for (List<String> preferences : responsePreferences.values()){
+			Collections.reverse(preferences);
+		}
+		return generateNaieveStableSameSexMarriage(responsePreferences, responsesToUsers);
+	}
+
+	private static Map<String, List<String>> compileEditDistancePreferenceList(Collection<String> allResponses){
+		Map<String, List<String>> result = new HashMap<String, List<String>>();
+		for (String response : allResponses){
+			List<String> others = new ArrayList<String>(allResponses);
+			others.remove(response);
+			Collections.sort(others, new LevenshteinComparator(response));
+			result.put(response, others);
+		}
+		return result;
+	}
+	
+	private static Map<String, String> generateNaieveStableSameSexMarriage(Map<String, List<String>> preferences, Map<String, String> responsesToUsers){
+		Map<String, String> userPairings = new HashMap<String, String>();
+		
+		for (String response : preferences.keySet()){
+			String associatedUser1 = responsesToUsers.get(response);
+			
+			if (!userPairings.containsKey(associatedUser1)){
+				List<String> similarResponses = preferences.get(response);
+				
+				// SINGLETON CASE
+				if (preferences.keySet().size() == 1){
+					userPairings.put(associatedUser1, associatedUser1);
+				}
+				
+				// TRIPLET CASE
+				else if (preferences.keySet().size() % 2 == 1 && userPairings.keySet().size() == 0){
+					String associatedUser2 = responsesToUsers.get(similarResponses.remove(0));			
+					String associatedUser3 = responsesToUsers.get(similarResponses.remove(0));
+					userPairings.put(associatedUser1, associatedUser2);
+					userPairings.put(associatedUser2, associatedUser3);
+					userPairings.put(associatedUser3, associatedUser1);
+				}
+				
+				// DUPLE CASES
+				else {	
+					String associatedUser2 = responsesToUsers.get(similarResponses.remove(0));
+					while (userPairings.keySet().contains(associatedUser2)){
+						associatedUser2 = responsesToUsers.get(similarResponses.remove(0));
+					}
+					userPairings.put(associatedUser1, associatedUser2);
+				}
+			}
+		}
+		
+		return userPairings;
+	}
+	
+	
+	private static class LengthComparator implements Comparator<String>{
+	
+		@Override
+		public int compare(String s1, String s2) {
+			if (s1.length() > s2.length()){
+				return 1;
+			} else if (s1.length() < s2.length()){
+				return -1;
+			} else {
+				return 0;
+			}
+		}
+	}
+
+	private static class LevenshteinComparator implements Comparator<String>{
+	
 		private String target;
 		
 		public LevenshteinComparator(String target){
@@ -209,84 +344,6 @@ public class PairingAPI {
 				return 0;
 			}
 		}
-	}
-	
-	private static Map<String, String> invEditDistanceAlgorithm(Map<String, String> userResponses) {
-		// DUMMY
-		return randomAlgorithm(userResponses);
-	}
-
-	private static Map<String, String> editDistanceAlgorithm(Map<String, String> userResponses) {
-		// DUMMY
-		return randomAlgorithm(userResponses);
-	}
-
-	private static Map<String, String> lengthAlgorithm(Map<String, String> userResponses) {
-		Map<String, String> invertedResponses = invertMap(userResponses);
-		List<String> responses = new ArrayList<String>(invertedResponses.keySet());
-		Collections.sort(responses, new LengthComparator());
-		
-		Map<String, String> resulting = new HashMap<String, String>();
-				
-		if (responses.size() == 1){
-			String loneUser = invertedResponses.get(responses.get(0));
-			resulting.put(loneUser, loneUser);
-			return resulting;
-		}
-		
-		if (responses.size() % 2 == 1){
-			String user1 = invertedResponses.get(responses.remove(0));
-			String user2 = invertedResponses.get(responses.remove(0));
-			String user3 = invertedResponses.get(responses.remove(0));
-			resulting.put(user1, user2);
-			resulting.put(user2, user3);
-			resulting.put(user3, user1);
-		}
-		
-		while (responses.size() > 0){
-			String user1 = invertedResponses.get(responses.remove(0));
-			String user2 = invertedResponses.get(responses.remove(0));
-			resulting.put(user1, user2);
-			resulting.put(user2, user1);
-		}
-		
-		return resulting;
-	}
-
-	private static Map<String, String> randomAlgorithm(Map<String, String> userResponses) {
-		Map<String, String> resulting = new HashMap<String, String>();
-		List<String> userIds = new ArrayList<String>(userResponses.keySet());
-		if (userIds.size() == 1){
-			resulting.put(userIds.get(0), userIds.get(0));
-			return resulting;
-		}
-		if (userIds.size() % 2 == 1){
-			String id1 = userIds.remove(0);
-			String id2 = userIds.remove(0);
-			String id3 = userIds.remove(0);
-			resulting.put(id1, id2);
-			resulting.put(id2, id3);
-			resulting.put(id3, id1);
-		}
-		
-		while(userIds.size() > 0){
-			String id1 = userIds.remove(0);
-			String id2 = userIds.remove(0);
-			resulting.put(id1, id2);
-			resulting.put(id2, id1);
-		}
-	
-		return resulting;
-	}
-	
-	private static void saveProblemCommentPairingMapping(String problemUuid, Map<String, String> userPairing){
-		Entity e = new Entity(KeyFactory.createKey("Pairing", problemUuid));
-		for(String user1 : userPairing.keySet()){
-			String user2 = userPairing.get(user1);
-			e.setUnindexedProperty(user1, user2);
-			e.setUnindexedProperty("INVERSE-" + user2, user1);
-		}
-		datastore.put(e);
 	}
 	
 	

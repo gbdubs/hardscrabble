@@ -16,7 +16,7 @@ public class InstructorLandingServlet extends HttpServlet {
 	
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
 		
-		if (AuthenticationAPI.isUserAdministrator()){
+		if (AuthenticationAPI.isUserInstructor()){
 			
 			req.setAttribute("allProblems", ProblemAPI.getAllProblems());
 			

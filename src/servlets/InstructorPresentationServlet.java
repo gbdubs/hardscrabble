@@ -20,7 +20,7 @@ import com.google.appengine.api.datastore.EntityNotFoundException;
 public class InstructorPresentationServlet extends HttpServlet{
 
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
-		if (AuthenticationAPI.isUserAdministrator()){
+		if (AuthenticationAPI.isUserInstructor()){
 			String uuid = UuidTools.parseUuidFromRequestUrl(req);
 			if (uuid == null){
 				uuid = (String) req.getAttribute("uuid");
@@ -45,7 +45,7 @@ public class InstructorPresentationServlet extends HttpServlet{
 	}
 	
 	public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
-		if (AuthenticationAPI.isUserAdministrator() && req.getParameter("advance") != null){
+		if (AuthenticationAPI.isUserInstructor() && req.getParameter("advance") != null){
 			String uuid = req.getParameter("uuid");
 			try {
 				Problem p = new Problem(uuid);
