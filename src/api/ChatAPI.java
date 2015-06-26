@@ -1,13 +1,11 @@
 package api;
 
 import java.util.ArrayList;
-import java.util.Map;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import models.Problem;
-import servlets.CheckInServlet;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
@@ -22,22 +20,12 @@ public class ChatAPI {
 	private static UserService userService = UserServiceFactory.getUserService();
 	private static DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 
-	public static void initializeChatPhase(){
-		List<String> allLoggedInUsers = CheckInServlet.getCurrentlyCheckedInUserIds();
-		Map<String, List<String>> groups = new HashMap<String, List<String>>();
-		for (String userId : allLoggedInUsers){
-			if (!groups.containsKey(userId)){
-				List<String> chatGroup = new ArrayList<String>();
-				String current = userId;
-				while(!chatGroup.contains(current)){
-					chatGroup.add(current);
-					current = PairingAPI.getPairedUserId(CurrentAPI.getCurrentProblem(), current);
-				}
-				for (String chatter : chatGroup){
-					groups.put(chatter, chatGroup);
-				}
-			}
-		}
+	/**
+	 * Initializes the Chat phase for all users currently signed in. Uses the pairings
+	 * to create chat rooms.
+	 */
+	public static void initializeChatPhase(){				
+		Map<String, List<String>> groups = PairingAPI.getCurrentGroupMapping();
 		for (List<String> group : groups.values()){
 			while(group.remove(null)){}
 			createChat(group);

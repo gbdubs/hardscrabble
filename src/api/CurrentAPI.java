@@ -18,7 +18,7 @@ public class CurrentAPI {
 	private static String currentProblem = null;
 	private static int currentProblemRun = -1;
 	
-	private static int currentPhaseUpdateInterval = 10000;
+	private static int currentPhaseUpdateInterval = 1000;
 	private static long currentPhaseLastCheck = 0L;
 	private static String currentPhase = null;
 	

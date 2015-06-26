@@ -10,6 +10,7 @@ $(function(){
 	
 	// SCOPE VARIABLES FOR MULTIPLE FUNCTIONS
 	
+	
 	var currentPhase = "waiting";
 	var previousTimerIntervals = [];
 	var pollInterval = setInterval(poll, 1000);

@@ -1,6 +1,7 @@
 package api;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -24,16 +25,27 @@ import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
 import com.google.appengine.api.datastore.Query.Filter;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.FilterPredicate;
+import com.google.appengine.api.datastore.Text;
+import com.google.gson.Gson;
 
 public class PairingAPI {
 
 	private static DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 	
-	public static Entity getCurrentPairingDefinition(){
+	public static Map<String, List<String>> getCurrentGroupMapping(){
+		Entity e = getCurrentPairingDefinition();
+		String jsonData = ((Text) e.getProperty("groupMapping")).getValue();
+		Gson gson = new Gson();
+		Map<String, List<String>> template = new HashMap<String, List<String>>();
+		Map<String, List<String>> result = gson.fromJson(jsonData, template.getClass());
+		return result;
+	}
+	
+	private static Entity getCurrentPairingDefinition(){
 		return getPairingDefinition(CurrentAPI.getCurrentProblem());
 	}
 	
-	public static Entity getPairingDefinition(String problemUuid){
+	private static Entity getPairingDefinition(String problemUuid){
 		try {
 			return datastore.get(KeyFactory.createKey("Pairing", problemUuid));
 		} catch (EntityNotFoundException enfe) {
@@ -87,12 +99,22 @@ public class PairingAPI {
 	}
 
 	private static void saveProblemCommentPairingMapping(String problemUuid, Map<String, String> userPairing){
+		Map<String, List<String>> groups = new HashMap<String, List<String>>();
 		Entity e = new Entity(KeyFactory.createKey("Pairing", problemUuid));
 		for(String user1 : userPairing.keySet()){
 			String user2 = userPairing.get(user1);
+			if (groups.containsKey(user2)){
+				groups.get(user2).add(user1);
+				groups.put(user1, groups.get(user2));
+			} else {
+				groups.put(user1, Arrays.asList(user1, user2));
+				groups.put(user2, groups.get(user1));
+			}
 			e.setUnindexedProperty(user1, user2);
 			e.setUnindexedProperty("INVERSE-" + user2, user1);
 		}
+		Gson gson = new Gson();
+		e.setUnindexedProperty("groupMapping", new Text(gson.toJson(groups)));
 		datastore.put(e);
 	}
 
