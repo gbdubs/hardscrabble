@@ -8,9 +8,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import tools.UuidTools;
 import models.Problem;
+import tools.UuidTools;
 import api.AuthenticationAPI;
+import api.ChatAPI;
 import api.CurrentAPI;
 import api.PairingAPI;
 
@@ -52,6 +53,8 @@ public class InstructorPresentationServlet extends HttpServlet{
 				p.advance();
 				if (p.currentPhase.equals("comment")){
 					PairingAPI.constructPairings(uuid);
+				} else if (p.currentPhase.equals("chat")){
+					ChatAPI.initializeChatPhase();
 				}
 				resp.sendRedirect("/problem/" + uuid);
 			} catch (EntityNotFoundException e) {

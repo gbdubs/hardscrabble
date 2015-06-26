@@ -212,9 +212,6 @@ public class Problem {
 		if (currentPhase.equals("waiting")){
 			problemRun++;
 		}
-		if (currentPhase.equals("chat")){
-			ChatAPI.initializeChatPhase();
-		}
 		phaseStartedAt = System.currentTimeMillis();
 		save();
 	}
