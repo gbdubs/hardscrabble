@@ -34,13 +34,9 @@ public class TestPairingAPI {
 		helper.tearDown();
 	}
 
-	public static void instantiateTestCase(int n, String commentAlgorithm){
-		String problemUuid = addCurrentProblemToDatabase(commentAlgorithm);
-		createNDummyUserResponses(n);
-		PairingAPI.constructPairings(problemUuid);
-		assertAllUsersGetAResponseToComment(n);
-		createNDummyUserResponses(n);
-		assertAllUsersGetCommentsBack(n);
+	@Test
+	public void testPairingSoleRandomCase(){
+		instantiateTestCase(1, "random");
 	}
 
 	@Test
@@ -48,16 +44,90 @@ public class TestPairingAPI {
 		instantiateTestCase(2, "random");
 		instantiateTestCase(22, "random");
 	}
-	
+
 	@Test
 	public void testPairingOddRandomCase(){
 		instantiateTestCase(11, "random");
 		instantiateTestCase(3, "random");
 	}
+
+	@Test
+	public void testPairingSoleLengthCase(){
+		instantiateTestCase(1, "length");
+	}
+
+	@Test
+	public void testPairingEvenLengthCase(){
+		instantiateTestCase(2, "length");
+		instantiateTestCase(22, "length");
+	}
+
+	@Test
+	public void testPairingOddLengthCase(){
+		instantiateTestCase(11, "length");
+		instantiateTestCase(3, "length");
+	}
+
+	@Test
+	public void testPairingSoleInvLengthCase(){
+		instantiateTestCase(1, "inv-length");
+	}
+
+	@Test
+	public void testPairingEvenInvLengthCase(){
+		instantiateTestCase(2, "inv-length");
+		instantiateTestCase(22, "inv-length");
+	}
+
+	@Test
+	public void testPairingOddInvLengthCase(){
+		instantiateTestCase(11, "inv-length");
+		instantiateTestCase(3, "inv-length");
+	}
 	
 	@Test
-	public void testPairingSoleRandomCase(){
-		instantiateTestCase(1, "random");
+	public void testPairingSoleEditDistCase(){
+		instantiateTestCase(1, "edit-distance");
+	}
+
+	@Test
+	public void testPairingEvenEditDistCase(){
+		instantiateTestCase(2, "edit-distance");
+		instantiateTestCase(22, "edit-distance");
+	}
+
+	@Test
+	public void testPairingOddEditDistCase(){
+		instantiateTestCase(11, "edit-distance");
+		instantiateTestCase(3, "edit-distance");
+	}
+	
+	@Test
+	public void testPairingSoleInvEditDistCase(){
+		instantiateTestCase(1, "inv-edit-distance");
+	}
+
+	@Test
+	public void testPairingEvenInvEditDistCase(){
+		instantiateTestCase(2, "inv-edit-distance");
+		instantiateTestCase(22, "inv-edit-distance");
+	}
+
+	@Test
+	public void testPairingOddInvEditDistCase(){
+		instantiateTestCase(3, "inv-edit-distance");
+		instantiateTestCase(11, "inv-edit-distance");
+		
+	}
+	
+
+	public static void instantiateTestCase(int n, String commentAlgorithm){
+		String problemUuid = addCurrentProblemToDatabase(commentAlgorithm);
+		createNDummyUserResponses(n);
+		PairingAPI.constructPairings(problemUuid);
+		assertAllUsersGetAResponseToComment(n);
+		createNDummyUserComments(n);
+		assertAllUsersGetCommentsBack(n);
 	}
 
 	public static void assertAllUsersGetAResponseToComment(int n){
@@ -106,7 +176,7 @@ public class TestPairingAPI {
 	}
 
 	public static Problem dummyQuestion(String commentAlgorithm){
-		String uuid = UUID.randomUUID().toString();
+		String uuid = "b7b069da-bf70-49c0-84e7-1e4190fcd665";
 		Entity e = new Entity("Problem", uuid);
 		e.setUnindexedProperty("uuid", uuid);
 		e.setUnindexedProperty("title", "Dummy Question");

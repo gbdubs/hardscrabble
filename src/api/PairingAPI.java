@@ -107,8 +107,11 @@ public class PairingAPI {
 				groups.get(user2).add(user1);
 				groups.put(user1, groups.get(user2));
 			} else {
-				groups.put(user1, Arrays.asList(user1, user2));
-				groups.put(user2, groups.get(user1));
+				ArrayList<String> list = new ArrayList<String>();
+				list.add(user1);
+				list.add(user2);
+				groups.put(user1, list);
+				groups.put(user2, list);
 			}
 			e.setUnindexedProperty(user1, user2);
 			e.setUnindexedProperty("INVERSE-" + user2, user1);
@@ -284,6 +287,7 @@ public class PairingAPI {
 			
 			if (!userPairings.containsKey(associatedUser1)){
 				List<String> similarResponses = preferences.get(response);
+				similarResponses.removeAll(userPairings.keySet());
 				
 				// SINGLETON CASE
 				if (preferences.keySet().size() == 1){
@@ -302,9 +306,6 @@ public class PairingAPI {
 				// DUPLE CASES
 				else {	
 					String associatedUser2 = responsesToUsers.get(similarResponses.remove(0));
-					while (userPairings.keySet().contains(associatedUser2)){
-						associatedUser2 = responsesToUsers.get(similarResponses.remove(0));
-					}
 					userPairings.put(associatedUser1, associatedUser2);
 				}
 			}
