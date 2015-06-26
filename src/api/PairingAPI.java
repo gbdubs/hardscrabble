@@ -280,6 +280,7 @@ public class PairingAPI {
 	}
 	
 	private static Map<String, String> generateNaieveStableSameSexMarriage(Map<String, List<String>> preferences, Map<String, String> responsesToUsers){
+		Map<String, String> usersToResponses = invertMap(responsesToUsers);
 		Map<String, String> userPairings = new HashMap<String, String>();
 		
 		for (String response : preferences.keySet()){
@@ -287,7 +288,9 @@ public class PairingAPI {
 			
 			if (!userPairings.containsKey(associatedUser1)){
 				List<String> similarResponses = preferences.get(response);
-				similarResponses.removeAll(userPairings.keySet());
+				for (String alreadyTaken : userPairings.keySet()){
+					similarResponses.remove(usersToResponses.get(alreadyTaken));
+				}
 				
 				// SINGLETON CASE
 				if (preferences.keySet().size() == 1){
@@ -307,6 +310,7 @@ public class PairingAPI {
 				else {	
 					String associatedUser2 = responsesToUsers.get(similarResponses.remove(0));
 					userPairings.put(associatedUser1, associatedUser2);
+					userPairings.put(associatedUser2, associatedUser1);
 				}
 			}
 		}

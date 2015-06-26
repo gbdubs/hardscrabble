@@ -98,8 +98,9 @@ public class TestPairingAPI {
 
 	@Test
 	public void testPairingOddEditDistCase(){
-		instantiateTestCase(11, "edit-distance");
 		instantiateTestCase(3, "edit-distance");
+		instantiateTestCase(9, "edit-distance");
+		instantiateTestCase(11, "edit-distance");
 	}
 	
 	@Test
