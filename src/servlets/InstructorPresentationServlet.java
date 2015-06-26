@@ -21,7 +21,7 @@ public class InstructorPresentationServlet extends HttpServlet{
 
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
 		if (AuthenticationAPI.isUserAdministrator()){
-			String uuid = UuidTools.parseUuidFromUrl(req.getRequestURI());
+			String uuid = UuidTools.parseUuidFromRequestUrl(req);
 			if (uuid == null){
 				uuid = (String) req.getAttribute("uuid");
 			}

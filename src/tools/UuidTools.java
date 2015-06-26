@@ -11,7 +11,7 @@ public class UuidTools {
 	 * @param parseString The string from which we are going to parse our UUID
 	 * @return A String representing the UUID in the parse string, or null if none were found.
 	 */
-	public static String parseUuidFromUrl(String parseString){	
+	public static String parseUuidFromString(String parseString){	
 		try{
 			String[] potentials = parseString.split("-|/");
 	
@@ -63,6 +63,6 @@ public class UuidTools {
 	 * @return A String UUID if it was found, null otherwise
 	 */
 	public static String parseUuidFromRequestUrl(HttpServletRequest req){
-		return parseUuidFromUrl(req.getRequestURI());
+		return parseUuidFromString(req.getRequestURI());
 	}
 }

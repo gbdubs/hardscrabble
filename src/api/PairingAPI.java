@@ -2,9 +2,13 @@ package api;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import models.Problem;
 
@@ -93,11 +97,120 @@ public class PairingAPI {
 		return null;
 	}
 
+	private static class LengthComparator implements Comparator<String>{
+
+		@Override
+		public int compare(String s1, String s2) {
+			if (s1.length() > s2.length()){
+				return 1;
+			} else if (s1.length() < s2.length()){
+				return -1;
+			} else {
+				return 0;
+			}
+		}
+	}
+	
+	private static Map<String, String> makeMapInvertible(Map<String, String> original){
+		if (original.keySet().size() == original.values().size()){
+			return original;
+		} else {
+			Map<String, String> newMap = new HashMap<String, String>();
+			Set<String> allValues = new HashSet<String>();
+			for (String key : original.keySet()){
+				String value = original.get(key);
+				while (allValues.contains(value)){
+					value = value + " ";
+				}
+				newMap.put(key, value);
+				allValues.add(value);
+			}
+			return newMap;
+		}
+	}
+	
+	private static Map<String, String> invertMap(Map<String, String> original){
+		original = makeMapInvertible(original);
+		HashMap<String, String> newMap = new HashMap<String, String>();
+		for (String key : original.keySet()){
+			newMap.put(original.get(key), key);
+		}
+		return newMap;
+	}
+	
 	private static Map<String, String> invLengthAlgorithm(Map<String, String> userResponses) {
-		// DUMMY
-		return randomAlgorithm(userResponses);
+		Map<String, String> invertedResponses = invertMap(userResponses);
+		List<String> responses = new ArrayList<String>(invertedResponses.keySet());
+		Collections.sort(responses, new LengthComparator());
+		
+		Map<String, String> resulting = new HashMap<String, String>();
+				
+		if (responses.size() == 1){
+			String loneUser = invertedResponses.get(responses.get(0));
+			resulting.put(loneUser, loneUser);
+			return resulting;
+		}
+		
+		if (responses.size() % 2 == 1){
+			String user1 = invertedResponses.get(responses.remove(0));
+			String user2 = invertedResponses.get(responses.remove(responses.size() - 1));
+			String user3 = invertedResponses.get(responses.remove(responses.size() - 1));
+			resulting.put(user1, user2);
+			resulting.put(user2, user3);
+			resulting.put(user3, user1);
+		}
+		
+		while (responses.size() > 0){
+			String user1 = invertedResponses.get(responses.remove(0));
+			String user2 = invertedResponses.get(responses.remove(responses.size() - 1));
+			resulting.put(user1, user2);
+			resulting.put(user2, user1);
+		}
+		
+		return resulting;
 	}
 
+	
+	private static class LevenshteinComparator implements Comparator<String>{
+
+		private String target;
+		
+		public LevenshteinComparator(String target){
+			this.target = target;
+		}
+		
+		private static int levenshteinDistance(String a, String b) {
+	        a = a.toLowerCase();
+	        b = b.toLowerCase();
+	        int [] costs = new int [b.length() + 1];
+	        for (int j = 0; j < costs.length; j++)
+	            costs[j] = j;
+	        for (int i = 1; i <= a.length(); i++) {
+	            costs[0] = i;
+	            int nw = i - 1;
+	            for (int j = 1; j <= b.length(); j++) {
+	                int cj = Math.min(1 + Math.min(costs[j], costs[j - 1]), a.charAt(i - 1) == b.charAt(j - 1) ? nw : nw + 1);
+	                nw = costs[j];
+	                costs[j] = cj;
+	            }
+	        }
+	        return costs[b.length()];
+	    }
+		
+		@Override
+		public int compare(String s1, String s2) {
+			int d1 = levenshteinDistance(target, s1);
+			int d2 = levenshteinDistance(target, s2);
+			if (d1 > d2){
+				return 1;
+			} else if (d1 < d2){
+				return -1;
+			} else {
+				return 0;
+			}
+		}
+	}
+	
 	private static Map<String, String> invEditDistanceAlgorithm(Map<String, String> userResponses) {
 		// DUMMY
 		return randomAlgorithm(userResponses);
@@ -109,8 +222,35 @@ public class PairingAPI {
 	}
 
 	private static Map<String, String> lengthAlgorithm(Map<String, String> userResponses) {
-		// DUMMY
-		return randomAlgorithm(userResponses);
+		Map<String, String> invertedResponses = invertMap(userResponses);
+		List<String> responses = new ArrayList<String>(invertedResponses.keySet());
+		Collections.sort(responses, new LengthComparator());
+		
+		Map<String, String> resulting = new HashMap<String, String>();
+				
+		if (responses.size() == 1){
+			String loneUser = invertedResponses.get(responses.get(0));
+			resulting.put(loneUser, loneUser);
+			return resulting;
+		}
+		
+		if (responses.size() % 2 == 1){
+			String user1 = invertedResponses.get(responses.remove(0));
+			String user2 = invertedResponses.get(responses.remove(0));
+			String user3 = invertedResponses.get(responses.remove(0));
+			resulting.put(user1, user2);
+			resulting.put(user2, user3);
+			resulting.put(user3, user1);
+		}
+		
+		while (responses.size() > 0){
+			String user1 = invertedResponses.get(responses.remove(0));
+			String user2 = invertedResponses.get(responses.remove(0));
+			resulting.put(user1, user2);
+			resulting.put(user2, user1);
+		}
+		
+		return resulting;
 	}
 
 	private static Map<String, String> randomAlgorithm(Map<String, String> userResponses) {
@@ -143,10 +283,13 @@ public class PairingAPI {
 		Entity e = new Entity(KeyFactory.createKey("Pairing", problemUuid));
 		for(String user1 : userPairing.keySet()){
 			String user2 = userPairing.get(user1);
-			e.setProperty(user1, user2);
-			e.setProperty("INVERSE-" + user2, user1);
+			e.setUnindexedProperty(user1, user2);
+			e.setUnindexedProperty("INVERSE-" + user2, user1);
 		}
 		datastore.put(e);
 	}
+	
+	
+	
 
 }

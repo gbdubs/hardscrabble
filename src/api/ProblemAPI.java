@@ -33,7 +33,7 @@ public class ProblemAPI {
 		Problem p = new Problem();
 		
 		if (req.getParameter("uuid") != null && req.getParameter("uuid").length() > 0){
-			String uuid = UuidTools.parseUuidFromUrl((String) req.getParameter("uuid"));
+			String uuid = UuidTools.parseUuidFromString((String) req.getParameter("uuid"));
 			if (uuid != null){
 				try {
 					p = new Problem(uuid);

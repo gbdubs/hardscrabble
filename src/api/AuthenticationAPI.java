@@ -22,6 +22,7 @@ public class AuthenticationAPI {
 			acceptedAdministrators.add("dilant@brandeis.edu");
 			acceptedAdministrators.add("gward@brandeis.edu");
 			acceptedAdministrators.add("grady.b.ward@gmail.com");
+			acceptedAdministrators.add("maltebar@brandeis.edu");
 		}
 		
 		if (user == null){
