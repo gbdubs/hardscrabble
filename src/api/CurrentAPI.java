@@ -12,7 +12,6 @@ public class CurrentAPI {
 
 	private static DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 	
-	
 	private static int currentProblemUpdateInterval = 10000;
 	private static long currentProblemLastCheck = 0L;
 	private static String currentProblem = null;

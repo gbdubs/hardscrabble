@@ -26,7 +26,7 @@ public class ChatServlet extends HttpServlet {
 			String chatRoomUuid = req.getParameter("chatRoomUuid");
 			String userId = req.getParameter("userId");
 			int mostRecentMessage = Integer.parseInt(req.getParameter("mostRecentMessage"));
-			List<String> messages = ChatAPI.getMessagesForMe(chatRoomUuid, userId, mostRecentMessage);
+			List<String> messages = ChatAPI.getMessagesForUser(chatRoomUuid, userId, mostRecentMessage);
 			pw.println(System.currentTimeMillis() / 1000);
 			for(String message : messages){
 				pw.print(message + "MESSAGEBREAK");

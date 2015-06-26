@@ -23,13 +23,14 @@ public class ChatAPI {
 	private static DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 	private static AsyncDatastoreService asyncDatastore = DatastoreServiceFactory.getAsyncDatastoreService();
 	
-	private static Map<String, Collection<String>> chatrooms;
+	private static Map<String, List<String>> chatrooms = null;
 	/**
 	 * Initializes the Chat phase for all users currently signed in. Uses the pairings
 	 * to create chat rooms.
 	 */
 	public static void initializeChatPhase(){				
 		Map<String, List<String>> groups = PairingAPI.getCurrentGroupMapping();
+		chatrooms = groups;
 		for (List<String> group : groups.values()){
 			while(group.remove(null)){}
 			createChat(group);
@@ -43,10 +44,10 @@ public class ChatAPI {
 	 */
 	private static String createChat(Collection<String> userIds){
 		// Updates the chat Switchboard to direct users to the correct chat.
-		String uuid = UUID.randomUUID().toString();
+		String chatroomUuid = UUID.randomUUID().toString();
 		Entity e = getCurrentChatSwitchboard();
 		for (String userId : userIds){
-			e.setUnindexedProperty(userId, uuid);
+			e.setUnindexedProperty(userId, chatroomUuid);
 		}
 		datastore.put(e);
 		
@@ -60,15 +61,19 @@ public class ChatAPI {
 		// Messages are directed to each inbox by the static variable chatrooms, initialized from
 		// the pairing API.
 		for (String userId : userIds){
-			Entity chatroomInbox = new Entity(KeyFactory.createKey("ChatroomInbox", uuid + "-" + userId));	
+			Entity chatroomInbox = new Entity(KeyFactory.createKey("ChatroomInbox", chatroomUuid + "-" + userId));	
 			List<String> messages = new ArrayList<String>();
 			messages.add(welcomeMessage);
 			chatroomInbox.setProperty("messages", messages);
 			asyncDatastore.put(chatroomInbox);
 		}
-		return uuid;
+		return chatroomUuid;
 	}
 
+	/**
+	 * Returns the chat switchboard, which is the mapping between users and their chatroomUuid
+	 * @return An entity storing the chat room switchboard definition.
+	 */
 	private static Entity getCurrentChatSwitchboard(){
 		Problem p;
 		try {
@@ -86,6 +91,10 @@ public class ChatAPI {
 		return e;
 	}
 	
+	/**
+	 * Returns the chat room Uuid that the user is assigned to.
+	 * @return
+	 */
 	public static String getMyChatRoom(){
 		if (userService.isUserLoggedIn()){
 			Entity e = getCurrentChatSwitchboard();
@@ -95,6 +104,18 @@ public class ChatAPI {
 		}		
 	}
 	
+	/**
+	 * Sends a message from one user to all others in the chat room.
+	 * 
+	 * Accomplishes this by placing a message in each user's message queue, which is stored 
+	 * in the datastore as ChatroomInbox entities.  Since it does each of these operations
+	 * Asynchronously, we have no guarantees about collisions, but they are relatively unlikely,
+	 * given that we have users pipelining all requests from single requests (with the exception
+	 * of a single, 3 way chat, which is going to have some issues in any naieve system)
+	 * @param chatRoomUuid The Chat Room Unique Identifier
+	 * @param userId The user's unique identifier
+	 * @param message The message to pass
+	 */
 	public static void sendMessageToChatRoom(String chatRoomUuid, String userId, String message){
 		Collection<String> pairedUsers = chatrooms.get(userId);
 		pairedUsers.remove(userId);
@@ -112,17 +133,25 @@ public class ChatAPI {
 		}
 	}
 	
-	public static List<String> getMessagesForMe(String chatRoomId, String userId, int truncate){
+	/**
+	 * Finds and returns the messages for the requesting user (given an offset of how many the user has already
+	 * read).
+	 * @param chatRoomUuid The unique chatroom identifier
+	 * @param userId The User's ID
+	 * @param alreadyRead The number of messages that the user has already recieved successfully.
+	 * @return A list of all unread messages for the user.
+	 */
+	public static List<String> getMessagesForUser(String chatRoomUuid, String userId, int alreadyRead){
 		Entity chatroomInbox;
 		try {
-			chatroomInbox = datastore.get(KeyFactory.createKey("ChatroomInbox", chatRoomId + "-" + userId));
+			chatroomInbox = datastore.get(KeyFactory.createKey("ChatroomInbox", chatRoomUuid + "-" + userId));
 		} catch (EntityNotFoundException e) {
-			System.out.println("NO CHATROOM INBOX FOUND WITH ID = " + chatRoomId + "-" + userId);
+			System.out.println("NO CHATROOM INBOX FOUND WITH ID = " + chatRoomUuid + "-" + userId);
 			return new ArrayList<String>();
 		}
 		List<String> allMessages = (List<String>) chatroomInbox.getProperty("messages");
-		if (allMessages.size() >= truncate){
-			return allMessages.subList(truncate, allMessages.size());
+		if (allMessages.size() >= alreadyRead){
+			return allMessages.subList(alreadyRead, allMessages.size());
 		} else {
 			return new ArrayList<String>();
 		}
