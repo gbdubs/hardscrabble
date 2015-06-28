@@ -104,12 +104,16 @@ public class PairingAPI {
 		for(String user1 : userPairing.keySet()){
 			String user2 = userPairing.get(user1);
 			if (groups.containsKey(user2)){
-				groups.get(user2).add(user1);
-				groups.put(user1, groups.get(user2));
+				if (!groups.get(user2).contains(user1)){
+					groups.get(user2).add(user1);
+					groups.put(user1, groups.get(user2));
+				}
 			} else {
 				ArrayList<String> list = new ArrayList<String>();
 				list.add(user1);
-				list.add(user2);
+				if (!user1.equals(user2)){
+					list.add(user2);
+				}
 				groups.put(user1, list);
 				groups.put(user2, list);
 			}
@@ -122,6 +126,12 @@ public class PairingAPI {
 	}
 
 	private static Map<String, String> constructPairingsByAlgorithm(Map<String, String> userResponses, String algorithm){
+		if (userResponses.size() == 1){
+			Map<String, String> result = new HashMap<String, String>();
+			String userId = userResponses.keySet().iterator().next();
+			result.put(userId, userId);
+			return result;
+		}
 		if (algorithm.equals("random")){
 			return randomAlgorithm(userResponses);
 		} else if (algorithm.equals("length")){

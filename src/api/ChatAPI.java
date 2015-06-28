@@ -19,6 +19,7 @@ import com.google.appengine.api.users.UserServiceFactory;
 
 public class ChatAPI {
 	
+	private static boolean testMode = false;
 	private static UserService userService = UserServiceFactory.getUserService();
 	private static DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 	private static AsyncDatastoreService asyncDatastore = DatastoreServiceFactory.getAsyncDatastoreService();
@@ -65,7 +66,11 @@ public class ChatAPI {
 			List<String> messages = new ArrayList<String>();
 			messages.add(welcomeMessage);
 			chatroomInbox.setProperty("messages", messages);
-			asyncDatastore.put(chatroomInbox);
+			if (!testMode){
+				asyncDatastore.put(chatroomInbox);
+			} else {
+				datastore.put(chatroomInbox);
+			}
 		}
 		return chatroomUuid;
 	}
@@ -96,14 +101,23 @@ public class ChatAPI {
 	 * @return
 	 */
 	public static String getMyChatRoom(){
-		if (userService.isUserLoggedIn()){
-			Entity e = getCurrentChatSwitchboard();
-			return (String) e.getProperty(userService.getCurrentUser().getUserId());
-		} else {
-			return null;
-		}		
+		return getMyChatRoom(userService.getCurrentUser().getUserId());	
 	}
 	
+	/**
+	 * A stripped down version of the above function to allow testing
+	 * @param userId The requested User's ID
+	 * @return their assigned chatroom uuid
+	 */
+	public static String getMyChatRoom(String userId) {
+		if (userService.isUserLoggedIn() || testMode){
+			Entity e = getCurrentChatSwitchboard();
+			return (String) e.getProperty(userId);
+		} else {
+			return null;
+		}	
+	}
+
 	/**
 	 * Sends a message from one user to all others in the chat room.
 	 * 
@@ -126,7 +140,11 @@ public class ChatAPI {
 				List<String> messages = (List<String>) e.getProperty("messages");
 				messages.add(message);
 				e.setUnindexedProperty("messages", messages);
-				asyncDatastore.put(e);
+				if (!testMode){
+					asyncDatastore.put(e);
+				} else {
+					datastore.put(e);
+				}
 			} catch (EntityNotFoundException e1) {
 				// Skip this if we don't get here.
 			}
@@ -155,6 +173,10 @@ public class ChatAPI {
 		} else {
 			return new ArrayList<String>();
 		}
+	}
+	
+	public static void runInTestMode(){
+		testMode = true;
 	}
 	
 }
