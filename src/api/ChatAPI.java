@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import models.Problem;
+import servlets.ChatServlet;
 
 import com.google.appengine.api.datastore.AsyncDatastoreService;
 import com.google.appengine.api.datastore.DatastoreService;
@@ -54,7 +55,7 @@ public class ChatAPI {
 		
 		String welcomeMessage = "ADMIN: Welcome to chat. Please discuss the comments that you made on one another's code.";
 		if (userIds.size() > 2){
-			welcomeMessage += "MESSAGEBREAK Please note that there are more than two people in this chat. Each person be identified by a consistent number.";
+			welcomeMessage += ChatServlet.MESSAGE_BREAK + "Please note that there are more than two people in this chat. Each person be identified by a consistent number.";
 		}
 		
 		// Constructs the new chatroom entities where messages will be stored. 

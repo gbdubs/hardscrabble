@@ -15,10 +15,9 @@
 				<div class="split-screen">
 					<h2>Current Problem: ${problem.title}</h2>
 			
-					<button id="refresh-check-in" class="btn btn-blue">Refresh Participants</button>	
-					<p id="checked-in">
-			
-					</p>
+					<button id="refresh-check-in-email" class="btn btn-blue">Refresh Participants Emails</button>	
+					<button id="refresh-check-in-nickname" class="btn btn-blue">Refresh Participants Names</button>	
+					<p id="checked-in"></p>
 				</div>
 				<br/>
 				<div class="split-screen">

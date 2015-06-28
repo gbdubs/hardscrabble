@@ -1,16 +1,23 @@
 $(function(){
 	
-	refreshCheckedIn();
+	refreshCheckedIn("email");
 	
-	$("#refresh-check-in").click(function(){
-		refreshCheckedIn();
+	$("#refresh-check-in-nickname").click(function(){
+		refreshCheckedIn("nickname");
 	});
 	
-	function refreshCheckedIn(){
+	$("#refresh-check-in-email").click(function(){
+		refreshCheckedIn("email");
+	});
+	
+	function refreshCheckedIn(displayType){
 		console.log("attempting to refresh check-in list");
 		$.ajax({
 			method: "GET",
 			url: "/check-in",
+			data: {
+				"display": displayType
+			},
 			success: function(result){
 				$("#checked-in").text(result);
 				console.log("refreshed check-in list");

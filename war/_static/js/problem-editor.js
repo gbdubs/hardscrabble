@@ -54,9 +54,7 @@ $(function(){
 				"chatTime": chatTime
 			}
 		}).done(function(resp){
-			if (resp == "complete"){
-				$("#save-button").text("Saved").addClass("btn-green");
-			}
+			$("#save-button").text("Saved").addClass("btn-green").addClass("disabled");
 		}).fail(function(){
 			$("#save-button").text("Save Failed").addClass("btn-red");
 		});
