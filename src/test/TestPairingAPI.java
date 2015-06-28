@@ -123,9 +123,9 @@ public class TestPairingAPI {
 	
 
 	public static void instantiateTestCase(int n, String commentAlgorithm){
-		String problemUuid = addCurrentProblemToDatabase(commentAlgorithm);
+		addCurrentProblemToDatabase(commentAlgorithm);
 		createNDummyUserResponses(n);
-		PairingAPI.constructPairings(problemUuid);
+		PairingAPI.constructPairings();
 		assertAllUsersGetAResponseToComment(n);
 		createNDummyUserComments(n);
 		assertAllUsersGetCommentsBack(n);
@@ -134,7 +134,7 @@ public class TestPairingAPI {
 	public static void assertAllUsersGetAResponseToComment(int n){
 		for(int i = 0; i < n; i++){
 			String userId = "DUMMYUSER" + i;
-			String comments = PairingAPI.getPairedQuestionResponse(CurrentAPI.getCurrentProblem(), userId);
+			String comments = PairingAPI.getPartnersQuestionResponse(CurrentAPI.getCurrentProblem(), userId);
 			assertTrue(comments != null);
 			assertTrue(comments.length() > 0);
 		}
@@ -143,7 +143,7 @@ public class TestPairingAPI {
 	public static void assertAllUsersGetCommentsBack(int n){
 		for(int i = 0; i < n; i++){
 			String userId = "DUMMYUSER" + i;
-			String comments = PairingAPI.getPairedCommentResponse(CurrentAPI.getCurrentProblem(), userId);
+			String comments = PairingAPI.getPartnersCommentResponse(CurrentAPI.getCurrentProblem(), userId);
 			assertTrue(comments != null);
 			assertTrue(comments.length() > 0);
 		}

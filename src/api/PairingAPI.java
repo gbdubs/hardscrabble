@@ -41,30 +41,18 @@ public class PairingAPI {
 		return result;
 	}
 	
-	private static Entity getCurrentPairingDefinition(){
-		return getPairingDefinition(CurrentAPI.getCurrentProblem());
-	}
-	
-	private static Entity getPairingDefinition(String problemUuid){
-		try {
-			return datastore.get(KeyFactory.createKey("Pairing", problemUuid));
-		} catch (EntityNotFoundException enfe) {
-			return null;
-		}
-	}
-	
-	public static String getPairedQuestionResponse(String problemUuid, String userId){
-		return ResponseAPI.getQuestionResponse(problemUuid, getPairedUserId(problemUuid, userId));
+	public static String getPartnersQuestionResponse(String problemUuid, String userId){
+		return ResponseAPI.getQuestionResponse(problemUuid, getPartnersUserId(problemUuid, userId));
 	}
 
-	public static String getPairedUserId(String problemUuid, String userId){
+	public static String getPartnersUserId(String problemUuid, String userId){
 		Entity e = getPairingDefinition(problemUuid);
 		if (e == null) return null;
 		String pairedUserId = (String) e.getProperty(userId);
 		return pairedUserId;
 	}
 
-	public static String getPairedCommentResponse(String problemUuid, String userId){
+	public static String getPartnersCommentResponse(String problemUuid, String userId){
 		Entity e = getPairingDefinition(problemUuid);
 		if (e == null){
 			return "[ERROR: Your partner's comments could not be retrieved.]";
@@ -73,7 +61,23 @@ public class PairingAPI {
 		return ResponseAPI.getCommentResponse(problemUuid, pairedUserId);
 	}
 
-	public static void constructPairings(String problemUuid){
+	/**
+	 * Constructs pairings before the comment phase.
+	 * 
+	 * Some notes:
+	 *  - In odd cases, we create one group of three A comments on B comments on C comments on A.
+	 *  - In singelton cases, we create one group of one.
+	 *  - We have five different kinds of algorithms that can be used to create these pairings.
+	 *  	(random) -> Random assignment
+	 *  	(length) -> Pairs users with assignments of similar length
+	 *  	(inv-length) -> Pairs users with inversely long assignments
+	 *  	(edit-distance) -> Pairs users whose assignments are similar to one another through Levenshtein comaprison
+	 *  	(inv-edit-distance) -> Pairs users whose assignments are not similar through Levenshtein comparison
+	 * @param problemUuid The problem to construct parings for.
+	 */
+	public static void constructPairings(){
+		String problemUuid = CurrentAPI.getCurrentProblem();
+		
 		Problem p;
 		try {
 			p = new Problem(problemUuid);
@@ -85,7 +89,7 @@ public class PairingAPI {
 		Collection<Filter> filters = new ArrayList<Filter>();
 		filters.add(new FilterPredicate("problemUuid", FilterOperator.EQUAL, problemUuid));
 		filters.add(new FilterPredicate("responseType", FilterOperator.EQUAL, "question"));
-		filters.add(new FilterPredicate("problemRun", FilterOperator.EQUAL, CurrentAPI.getCurrentProblemRun()));
+		filters.add(new FilterPredicate("problemRun", FilterOperator.EQUAL, p.getProblemRun()));
 		CompositeFilter filter = new CompositeFilter(CompositeFilterOperator.AND, filters);
 		q.setFilter(filter);
 		
@@ -98,6 +102,21 @@ public class PairingAPI {
 		saveProblemCommentPairingMapping(problemUuid, userMapping);
 	}
 
+	private static Entity getPairingDefinition(String problemUuid){
+		try {
+			return datastore.get(KeyFactory.createKey("Pairing", problemUuid));
+		} catch (EntityNotFoundException enfe) {
+			return null;
+		}
+	}
+
+	/**
+	 * Saves the problem comment pairings for later retreival and inference. 
+	 * Note that we store this in a "Pairing" entity, and we JSON the map of userIds to groups
+	 * for later extraction during the chat phase.
+	 * @param problemUuid The Problem to save the comment pairings for.
+	 * @param userPairing The Map from a user's id to the userId of the person who they will be commenting on.
+	 */
 	private static void saveProblemCommentPairingMapping(String problemUuid, Map<String, String> userPairing){
 		Map<String, List<String>> groups = new HashMap<String, List<String>>();
 		Entity e = new Entity(KeyFactory.createKey("Pairing", problemUuid));
@@ -125,6 +144,12 @@ public class PairingAPI {
 		datastore.put(e);
 	}
 
+	private static Entity getCurrentPairingDefinition(){
+		return getPairingDefinition(CurrentAPI.getCurrentProblem());
+	}
+
+	// Invokes the children methods which will construct a map between a userId, and the userId of the
+	// other use that the first user will be commenting on.
 	private static Map<String, String> constructPairingsByAlgorithm(Map<String, String> userResponses, String algorithm){
 		if (userResponses.size() == 1){
 			Map<String, String> result = new HashMap<String, String>();
@@ -146,6 +171,7 @@ public class PairingAPI {
 		return null;
 	}
 
+	// Pairs users randomly.
 	private static Map<String, String> randomAlgorithm(Map<String, String> userResponses) {
 		Map<String, String> resulting = new HashMap<String, String>();
 		List<String> userIds = new ArrayList<String>(userResponses.keySet());

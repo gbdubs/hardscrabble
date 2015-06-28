@@ -13,6 +13,13 @@ public class ResponseAPI {
 
 	private static DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 	
+	/**
+	 * Saves a response (to any kind of user activity), and places it in the databse for retrieval.
+	 * @param problemUuid The problem that the user is saving their response to
+	 * @param userId The User's unique identifier
+	 * @param responseType One of the phase types (i.e. 'pre','question','post','chat','comment')
+	 * @param response The user's response to be saved.
+	 */
 	public static void saveResponse(String problemUuid, String userId, String responseType, String response){
 		Key key = KeyFactory.createKey("Response", userId + "|" + problemUuid + "|" + responseType);
 		Entity e;
@@ -37,6 +44,7 @@ public class ResponseAPI {
 		return getResponse(problemUuid, userId, "comment");
 	}
 	
+	// Retrieves a requested response from the database
 	private static String getResponse(String problemUuid, String userId, String responseType){
 		Key key = KeyFactory.createKey("Response", userId + "|" + problemUuid + "|" + responseType);
 		try {

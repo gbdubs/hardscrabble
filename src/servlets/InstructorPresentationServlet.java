@@ -52,7 +52,7 @@ public class InstructorPresentationServlet extends HttpServlet{
 				Problem p = new Problem(uuid);
 				p.advance();
 				if (p.currentPhase.equals("comment")){
-					PairingAPI.constructPairings(uuid);
+					PairingAPI.constructPairings();
 				} else if (p.currentPhase.equals("chat")){
 					ChatAPI.initializeChatPhase();
 				}

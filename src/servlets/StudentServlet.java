@@ -103,13 +103,13 @@ public class StudentServlet extends HttpServlet{
 		} else if (req.getParameter("getPartnerQuestionResponse") != null){
 			if (userService.isUserLoggedIn()){
 				String userId = userService.getCurrentUser().getUserId();
-				pw.print(PairingAPI.getPairedQuestionResponse(p.getUuid(), userId));
+				pw.print(PairingAPI.getPartnersQuestionResponse(p.getUuid(), userId));
 				return true;
 			}
 		} else if (req.getParameter("getPartnerCommentResponse") != null){
 			if (userService.isUserLoggedIn()){
 				String userId = userService.getCurrentUser().getUserId();
-				pw.print(PairingAPI.getPairedCommentResponse(p.getUuid(), userId));
+				pw.print(PairingAPI.getPartnersCommentResponse(p.getUuid(), userId));
 				return true;
 			}
 		} else if (req.getParameter("getMyComments") != null){

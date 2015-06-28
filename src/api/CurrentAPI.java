@@ -17,21 +17,21 @@ public class CurrentAPI {
 	private static String currentProblem = null;
 	private static int currentProblemRun = -1;
 	
-	private static int currentPhaseUpdateInterval = 1000;
+	private static int currentPhaseUpdateInterval = 1500;
 	private static long currentPhaseLastCheck = 0L;
 	private static String currentPhase = null;
 	
+	// See checkForUpdateToCurrentProblem()
+	public static String getCurrentProblem(){
+		checkForUpdateToCurrentProblem();
+		return currentProblem;
+	}
+
 	// Sets the current problem to the specified UUID
 	public static void setCurrentProblem(String uuid){
 		Entity e = new Entity(KeyFactory.createKey("Current", "Problem"));
 		e.setProperty("uuid", uuid);
 		datastore.put(e);
-	}
-
-	// See checkForUpdateToCurrentProblem()
-	public static String getCurrentProblem(){
-		checkForUpdateToCurrentProblem();
-		return currentProblem;
 	}
 
 	// See checkForUpdateToCurrentProblem()
@@ -74,6 +74,12 @@ public class CurrentAPI {
 		}
 	}
 	
+	public static String getCurrentPhase() {
+		checkForUpdateToCurrentPhase();
+		return currentPhase;
+	}
+
+	// Same logic as currentProblem, simply applied to the current phase of the current problem
 	private static void checkForUpdateToCurrentPhase(){
 		if (currentPhaseLastCheck == 0L || 
 			currentPhase == null ||
@@ -90,10 +96,5 @@ public class CurrentAPI {
 			
 			currentPhaseLastCheck = System.currentTimeMillis();
 		}
-	}
-
-	public static String getCurrentPhase() {
-		checkForUpdateToCurrentPhase();
-		return currentPhase;
 	}
 }
