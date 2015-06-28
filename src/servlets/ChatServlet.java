@@ -54,13 +54,15 @@ public class ChatServlet extends HttpServlet {
 			// the same message twice, just couldn't if they were 100% synchronous calls.
 			
 			// This is a messy way of doing this; but it works, and was simple to implement
-			pw.println(System.currentTimeMillis() / 1000);
+			String fullMessage = "" + System.currentTimeMillis() / 1000;
 			for(String message : messages){
 				// The delimeter we use to seperate out messages can be anything, and using
 				// this kind of naieve implementation allows us to write quick, simple and
 				// reasonably efficent code.
-				pw.print(message + MESSAGE_BREAK);
+				fullMessage += message + MESSAGE_BREAK;
 			}
+			System.out.println("SENT MESSAGE: " + fullMessage);
+			pw.print(fullMessage);
 		}
 	}
 	

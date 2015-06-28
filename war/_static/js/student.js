@@ -531,9 +531,11 @@ $(function(){
 		}).done(function(data){
 			$(chatRoomId).val(data);
 			var userIdValue = $(userId).val();
-			if (typeof userIdValue != 'undefined'){
+			if (typeof userIdValue !== 'undefined'){
 				$(chatArea).removeClass("initializing");
-				chatPollingInterval = setInterval(pollForNewChatMessages, 1000);
+				if (typeof chatPollingInterval === 'undefined'){
+					chatPollingInterval = setInterval(pollForNewChatMessages, 1000);
+				}
 			}
 			console.log("Set ChatroomID To: " + chatRoomId);
 		}).fail(function(){
@@ -549,9 +551,11 @@ $(function(){
 		}).done(function(data){
 			$(userId).val(data);
 			var chatRoomIdValue = $(chatRoomId).val();
-			if (typeof chatRoomIdValue != 'undefined'){
+			if (typeof chatRoomIdValue !== 'undefined'){
 				$(chatArea).removeClass("initializing");
-				chatPollingInterval = setInterval(pollForNewChatMessages, 1000);
+				if (typeof chatPollingInterval === 'undefined'){
+					chatPollingInterval = setInterval(pollForNewChatMessages, 1000);
+				}
 			}
 			console.log("Set UserID To: " + userId);
 		}).fail(function(){
