@@ -11,6 +11,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import api.AuthenticationAPI;
+
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
@@ -29,28 +31,40 @@ public class CheckInServlet extends HttpServlet{
 	private static UserService userService = UserServiceFactory.getUserService();
 	private static DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 	
+	// Assume that users will poll in every thirty seconds (this is actually SET in the JS, but 
+	// we make assumptions in this code which require us to know this number)
 	private static final int POLL_INTERVAL = 30;
-	
-	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
-		
-		List<String> userEmails = getCurrentlyCheckedInEmails();
 
-		Collections.sort(userEmails);
-		
-		PrintWriter pw = resp.getWriter();
-		
-		pw.println(userEmails.size() + " Active Users:");
-		
-		for (String email : userEmails){
-			pw.println(email + ",");
+	// Allows instructors to get a list of currently logged in emails, userIds, or nicknames
+	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
+		if (AuthenticationAPI.isUserInstructor()){
+			List<String> data;
+			if (req.getParameter("display").equals("email")){
+				data = getCurrentlyCheckedInEmails();
+			} else if (req.getParameter("display").equals("nickname")){
+				data = getCurrentlyCheckedInEmails();
+			} else {
+				data = getCurrentlyCheckedInUserIds();
+			}
+			Collections.sort(data);
+			PrintWriter pw = resp.getWriter();
+			pw.println(data.size() + " Active Users:");
+			for (String email : data){
+				pw.println(email + ",");
+			}
 		}
 	}
 	
+	/**
+	 * Checks the current user in (if they are logged in).  Relies on the UserServiceAPI to provide
+	 * details about the user (nickname, email and unique identifier)
+	 */
 	public void doPost(HttpServletRequest req, HttpServletResponse resp){
 		User user = userService.getCurrentUser();
 		if (user != null){
 			String userId = user.getUserId();
 			String userEmail = user.getEmail();
+			String userNickname = user.getNickname();
 			Entity e;
 			try {
 				e = datastore.get(KeyFactory.createKey("LastCheckIn", userId));
@@ -58,6 +72,7 @@ public class CheckInServlet extends HttpServlet{
 				e = new Entity(KeyFactory.createKey("LastCheckIn", userId));
 				e.setUnindexedProperty("userEmail", userEmail);
 				e.setUnindexedProperty("userId", userId);
+				e.setUnindexedProperty("userNickname", userNickname);
 			}
 			e.setProperty("lastCheckIn", System.currentTimeMillis());
 			datastore.put(e);
@@ -82,6 +97,16 @@ public class CheckInServlet extends HttpServlet{
 		return results;
 	}
 	
+	public static List<String> getCurrentlyCheckedInNicknames(){
+		PreparedQuery pq = getRecentlyCheckedIn();
+		List<String> results = new ArrayList<String>();
+		for (Entity e : pq.asIterable()){
+			results.add((String) e.getProperty("userNickname"));
+		}
+		return results;
+	}
+	
+	// Prepares a query of people who have checked in within the last 30 seconds. (+5 for MoE)
 	private static PreparedQuery getRecentlyCheckedIn(){
 		Query q = new Query("LastCheckIn");
 		
